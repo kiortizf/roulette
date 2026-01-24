@@ -111,7 +111,9 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
       // Build discover params
       const decade = DECADES.find(d => d.label === selectedDecade);
       const params: any = {
-        page: Math.floor(Math.random() * 3) + 1, // Random page 1-3 for variety
+        page: 1, // Start with page 1, we'll pick a random valid page after
+        sort_by: 'popularity.desc', // Get popular movies first
+        'vote_count.gte': 50, // Ensure movies have enough votes to be meaningful
       };
 
       if (selectedGenres.length > 0) {
@@ -166,13 +168,41 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
         params.with_keywords = selectedKeywords.map(k => k.id).join('|');
       }
 
-      // Fetch movies
-      const response = await tmdbApi.discoverMovies(params);
-      
+      // First fetch to see how many pages exist
+      let response = await tmdbApi.discoverMovies(params);
+
+      // If no results with strict filters, try relaxing them
+      if (response.results.length === 0 && selectedStreaming.providerId) {
+        // Try without streaming filter
+        delete params.with_watch_providers;
+        delete params.watch_region;
+        response = await tmdbApi.discoverMovies(params);
+
+        if (response.results.length > 0) {
+          console.log('Relaxed streaming filter to find results');
+        }
+      }
+
+      if (response.results.length === 0 && params['vote_count.gte']) {
+        // Try with lower vote threshold
+        params['vote_count.gte'] = 10;
+        response = await tmdbApi.discoverMovies(params);
+      }
+
       if (response.results.length === 0) {
         alert('No movies found with these filters. Try loosening your criteria!');
         setIsSpinning(false);
         return;
+      }
+
+      // If there are multiple pages, pick a random valid page for variety
+      const totalPages = Math.min(response.total_pages || 1, 10); // Cap at 10 pages
+      if (totalPages > 1) {
+        const randomPage = Math.floor(Math.random() * totalPages) + 1;
+        if (randomPage !== 1) {
+          params.page = randomPage;
+          response = await tmdbApi.discoverMovies(params);
+        }
       }
 
       // Pick random movie from results
