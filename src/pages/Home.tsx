@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Film, Users, Sparkles } from 'lucide-react';
+import { Film, Users, Sparkles, Popcorn, Zap, PartyPopper } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -15,126 +15,160 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-float"></div>
-          <div className="absolute top-40 right-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{ animationDelay: '4s' }}></div>
-        </div>
+    <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-red-600 via-orange-500 to-yellow-400">
+      {/* Animated Popcorn Background */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-10 left-10 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+        <div className="absolute top-20 right-10 w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-10 left-1/3 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
       </div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, type: 'spring' }}
+          className="text-center mb-8"
         >
+          {/* Logo */}
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="inline-block mb-6"
+            animate={{ 
+              rotate: [0, 5, -5, 0],
+              scale: [1, 1.05, 1]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="inline-block mb-6 relative"
           >
             <div className="relative">
-              <Film className="w-20 h-20 text-pink-400" strokeWidth={1.5} />
-              <Sparkles className="w-8 h-8 text-yellow-400 absolute -top-2 -right-2 animate-pulse" />
+              <Popcorn className="w-32 h-32 text-white drop-shadow-2xl" strokeWidth={1.5} />
+              <Sparkles className="w-12 h-12 text-yellow-300 absolute -top-4 -right-4 animate-pulse" />
+              <Zap className="w-10 h-10 text-red-300 absolute -bottom-2 -left-2 animate-bounce" />
+              <PartyPopper className="w-10 h-10 text-pink-300 absolute top-0 -right-8 animate-pulse" style={{ animationDelay: '0.3s' }} />
             </div>
           </motion.div>
 
-          <h1 className="text-6xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">
-            Movie Roulette
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
-            Can't decide what to watch? Let fate decide! Add your picks, spin the wheel, and enjoy the show.
-          </p>
+          <motion.h1 
+            className="text-7xl md:text-8xl font-black mb-6 text-white drop-shadow-2xl"
+            style={{
+              textShadow: '4px 4px 0px rgba(255,0,0,0.3), 8px 8px 0px rgba(255,165,0,0.2)',
+              letterSpacing: '-0.02em'
+            }}
+          >
+            POPCORN
+            <br />
+            <span className="text-yellow-200">PANIC!</span>
+          </motion.h1>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-2xl md:text-3xl text-white font-bold max-w-3xl mx-auto drop-shadow-lg mb-4"
+          >
+            🍿 Can't pick a movie? <span className="text-yellow-200">SPIN IT!</span> 🎬
+          </motion.p>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-xl text-white/90 font-semibold"
+          >
+            The ultimate movie night decision maker!
+          </motion.p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="w-full max-w-md space-y-4"
+          transition={{ delay: 0.5 }}
+          className="w-full max-w-md space-y-5"
         >
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05, rotate: 1 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleCreateRoom}
-            className="w-full glass-dark hover:bg-white/10 text-white py-4 px-8 rounded-2xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-pink-500/25 flex items-center justify-center gap-3"
+            className="w-full group relative overflow-hidden bg-white text-red-600 py-6 px-8 rounded-2xl font-black text-2xl shadow-2xl transition-all"
+            style={{
+              boxShadow: '0 10px 30px rgba(0,0,0,0.3), inset 0 -5px 0 rgba(0,0,0,0.1)'
+            }}
           >
-            <Users className="w-6 h-6" />
-            Create New Room
-          </button>
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            <div className="relative flex items-center justify-center gap-3">
+              <Users className="w-8 h-8" />
+              START THE PARTY! 🎉
+            </div>
+          </motion.button>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-600"></div>
+              <div className="w-full border-t-4 border-white/30 border-dashed"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-transparent text-gray-400">or</span>
+              <span className="px-6 py-2 bg-red-600/80 backdrop-blur-sm text-white font-bold rounded-full text-lg shadow-lg">
+                OR JOIN THE FUN
+              </span>
             </div>
           </div>
 
-          <div className="glass-dark rounded-2xl p-6">
-            <label htmlFor="room-code" className="block text-sm font-medium text-gray-300 mb-2">
-              Join Existing Room
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                id="room-code"
-                placeholder="Enter room code"
-                className="flex-1 bg-black/30 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent uppercase"
-                maxLength={6}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    const input = e.currentTarget;
-                    if (input.value.trim()) {
-                      navigate(`/room/${input.value.toUpperCase()}`);
-                    }
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  const input = document.getElementById('room-code') as HTMLInputElement;
-                  if (input.value.trim()) {
-                    navigate(`/room/${input.value.toUpperCase()}`);
-                  }
-                }}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
-              >
-                Join
-              </button>
-            </div>
-          </div>
+          <motion.div 
+            className="text-center bg-white/10 backdrop-blur-md p-6 rounded-2xl border-2 border-white/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <p className="text-white font-bold text-lg mb-2">Got a room code? 🎫</p>
+            <p className="text-white/90 text-sm mb-3">Jump right in at:</p>
+            <code className="text-yellow-200 bg-black/30 px-4 py-3 rounded-xl text-base font-mono font-bold inline-block border-2 border-yellow-300/50">
+              popcornpanic.com/room/CODE
+            </code>
+          </motion.div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl"
+          transition={{ delay: 0.8 }}
+          className="mt-12"
         >
-          {[
-            { icon: Users, title: 'Invite Friends', desc: 'Share the room code with up to 10 friends' },
-            { icon: Film, title: 'Pick Movies', desc: 'Each person selects 2-5 movies they want to watch' },
-            { icon: Sparkles, title: 'Spin & Watch', desc: 'Let the roulette decide your movie night' },
-          ].map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 + index * 0.1 }}
-              className="glass-dark rounded-xl p-6 text-center"
+          <div className="flex flex-wrap items-center justify-center gap-6 text-white/90">
+            <motion.div 
+              className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-3 rounded-full border-2 border-white/30"
+              whileHover={{ scale: 1.1, rotate: 5 }}
             >
-              <feature.icon className="w-10 h-10 mx-auto mb-3 text-purple-400" />
-              <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-              <p className="text-sm text-gray-400">{feature.desc}</p>
+              <Film className="w-6 h-6 text-yellow-300" />
+              <span className="font-bold">Pick Movies</span>
             </motion.div>
-          ))}
+            <div className="w-3 h-3 bg-yellow-300 rounded-full animate-bounce"></div>
+            <motion.div 
+              className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-3 rounded-full border-2 border-white/30"
+              whileHover={{ scale: 1.1, rotate: -5 }}
+            >
+              <Users className="w-6 h-6 text-pink-300" />
+              <span className="font-bold">Vote Together</span>
+            </motion.div>
+            <div className="w-3 h-3 bg-pink-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <motion.div 
+              className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-5 py-3 rounded-full border-2 border-white/30"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+            >
+              <Sparkles className="w-6 h-6 text-cyan-300" />
+              <span className="font-bold">SPIN IT!</span>
+            </motion.div>
+          </div>
         </motion.div>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-8 text-white/70 text-sm font-semibold"
+        >
+          Made with 🧡 for movie nights that can't decide
+        </motion.p>
       </div>
     </main>
   );
