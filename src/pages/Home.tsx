@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Film, Users, Sparkles, Popcorn, Zap, PartyPopper } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Home() {
   const navigate = useNavigate();
+  const [joinCode, setJoinCode] = useState('');
 
   const generateRoomCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -12,6 +14,13 @@ export default function Home() {
   const handleCreateRoom = () => {
     const code = generateRoomCode();
     navigate(`/room/${code}`);
+  };
+
+  const handleJoinRoom = () => {
+    const code = joinCode.trim().toUpperCase();
+    if (code) {
+      navigate(`/room/${code}`);
+    }
   };
 
   return (
@@ -116,15 +125,31 @@ export default function Home() {
             </div>
           </div>
 
-          <motion.div 
-            className="text-center bg-white/10 backdrop-blur-md p-6 rounded-2xl border-2 border-white/30"
+          <motion.div
+            className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border-2 border-white/30"
             whileHover={{ scale: 1.02 }}
           >
-            <p className="text-white font-bold text-lg mb-2">Got a room code? 🎫</p>
-            <p className="text-white/90 text-sm mb-3">Jump right in at:</p>
-            <code className="text-yellow-200 bg-black/30 px-4 py-3 rounded-xl text-base font-mono font-bold inline-block border-2 border-yellow-300/50">
-              popcornpanic.com/room/CODE
-            </code>
+            <p className="text-white font-bold text-lg mb-4 text-center">Got a room code? 🎫</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                onKeyPress={(e) => e.key === 'Enter' && handleJoinRoom()}
+                placeholder="Enter code"
+                maxLength={8}
+                className="flex-1 bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/50 font-mono font-bold text-center text-lg uppercase focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300"
+              />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleJoinRoom}
+                disabled={!joinCode.trim()}
+                className="bg-yellow-400 hover:bg-yellow-300 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-black px-6 py-3 rounded-xl transition-colors"
+              >
+                JOIN
+              </motion.button>
+            </div>
           </motion.div>
         </motion.div>
 

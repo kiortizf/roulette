@@ -137,9 +137,19 @@ class LocalStorageService {
       room.selectedWinner = movie;
       this.saveToStorage();
       this.notifyListeners(roomCode);
-      
+
+      // Calculate total votes for all movies
+      const allVotes: { [movieId: string]: number } = {};
+      Object.values(room.users).forEach((user: any) => {
+        if (user.votes) {
+          Object.entries(user.votes).forEach(([movieId, vote]) => {
+            allVotes[movieId] = (allVotes[movieId] || 0) + (vote as number);
+          });
+        }
+      });
+
       // Save to history
-      this.saveToHistory(roomCode, movie, Object.values(room.users).map(u => u.name));
+      this.saveToHistory(roomCode, movie, Object.values(room.users).map((u: any) => u.name), allVotes);
     }
     return Promise.resolve();
   }
@@ -177,13 +187,15 @@ class LocalStorageService {
     return Promise.resolve(this.rooms.has(roomCode));
   }
 
-  private saveToHistory(roomCode: string, winner: Movie, participants: string[]) {
+  private saveToHistory(roomCode: string, winner: Movie, participants: string[], votes: { [movieId: string]: number } = {}) {
     const history = this.getHistory();
     history.unshift({
+      id: `local-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       winner,
       timestamp: Date.now(),
       roomCode,
       participants,
+      votes,
     });
     // Keep last 50 sessions
     localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(history.slice(0, 50)));
