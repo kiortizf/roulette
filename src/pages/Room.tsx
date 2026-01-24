@@ -60,11 +60,16 @@ export default function RoomPage() {
   const [showVoting, setShowVoting] = useState(false);
   const [showAdvancedWheel, setShowAdvancedWheel] = useState(false);
 
-  const currentUser = user ? roomData?.users[user.uid] : null;
-  const users = roomData ? Object.values(roomData.users) : [];
+  const currentUser = user ? roomData?.users?.[user.uid] : null;
+  const users = roomData?.users ? Object.values(roomData.users) : [];
   // Deduplicate movies by ID to avoid duplicate keys
   const allMovies = Array.from(
-    new Map(users.flatMap(u => u.selectedMovies).map(m => [m.id, m])).values()
+    new Map(
+      users
+        .flatMap(u => u.selectedMovies || [])
+        .filter(m => m && m.id)
+        .map(m => [m.id, m])
+    ).values()
   );
 
   // Subscribe to room changes
@@ -175,7 +180,7 @@ export default function RoomPage() {
     await voteOnMovie(roomCode, user.uid, movieId.toString(), vote);
   };
 
-  const canSpin = users.every(u => u.isReady && u.selectedMovies.length >= 2) && users.length > 0;
+  const canSpin = users.length > 0 && users.every(u => u.isReady && (u.selectedMovies?.length || 0) >= 2);
 
   const handleSpin = async () => {
     if (!canSpin || roomData?.isSpinning) return;
