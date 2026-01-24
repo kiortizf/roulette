@@ -50,6 +50,7 @@ import StatsPanel from '@/components/StatsPanel';
 import FloatingReactions from '@/components/FloatingReactions';
 import ReactionBar from '@/components/ReactionBar';
 import { soundManager, haptic } from '@/lib/sounds';
+import { getPosterUrl } from '@/lib/tmdb';
 
 export default function RoomPage() {
   const params = useParams();
@@ -557,27 +558,50 @@ export default function RoomPage() {
                   <p className="text-gray-400">The wheel has spoken</p>
                 </div>
 
-                <div className="bg-black/30 rounded-2xl p-6 mb-4">
-                  <h3 className="text-3xl font-bold mb-2">{roomData.selectedWinner.title}</h3>
-                  <div className="flex items-center gap-4 text-gray-300 mb-4">
-                    <span className="flex items-center gap-1">
-                      ⭐ {roomData.selectedWinner.vote_average.toFixed(1)}
-                    </span>
-                    <span>
-                      {new Date(roomData.selectedWinner.release_date).getFullYear()}
-                    </span>
-                    {(() => {
-                      const { total } = getMovieVotes(roomData.selectedWinner.id);
-                      return total !== 0 && (
-                        <span className={`px-2 py-1 rounded-full text-sm ${
-                          total > 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                        }`}>
-                          {total > 0 ? '+' : ''}{total} votes
-                        </span>
-                      );
-                    })()}
+                <div className="flex flex-col sm:flex-row gap-6 bg-black/30 rounded-2xl p-6 mb-4">
+                  {/* Movie Poster */}
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="relative w-40 h-60 mx-auto sm:mx-0 flex-shrink-0"
+                  >
+                    {roomData.selectedWinner.poster_path ? (
+                      <img
+                        src={getPosterUrl(roomData.selectedWinner.poster_path, 'w342')}
+                        alt={roomData.selectedWinner.title}
+                        className="absolute inset-0 w-full h-full object-cover rounded-xl shadow-2xl"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 w-full h-full bg-gray-800 flex items-center justify-center rounded-xl text-6xl">
+                        🎬
+                      </div>
+                    )}
+                  </motion.div>
+
+                  {/* Movie Info */}
+                  <div className="flex-1 text-center sm:text-left">
+                    <h3 className="text-2xl sm:text-3xl font-bold mb-2">{roomData.selectedWinner.title}</h3>
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-gray-300 mb-4">
+                      <span className="flex items-center gap-1">
+                        ⭐ {roomData.selectedWinner.vote_average.toFixed(1)}
+                      </span>
+                      <span>
+                        {new Date(roomData.selectedWinner.release_date).getFullYear()}
+                      </span>
+                      {(() => {
+                        const { total } = getMovieVotes(roomData.selectedWinner.id);
+                        return total !== 0 && (
+                          <span className={`px-2 py-1 rounded-full text-sm ${
+                            total > 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                          }`}>
+                            {total > 0 ? '+' : ''}{total} votes
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <p className="text-gray-400 line-clamp-4">{roomData.selectedWinner.overview}</p>
                   </div>
-                  <p className="text-gray-400 line-clamp-3">{roomData.selectedWinner.overview}</p>
                 </div>
 
                 {/* Emoji Reactions */}
