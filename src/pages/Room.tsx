@@ -201,7 +201,7 @@ export default function RoomPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-600 via-orange-500 to-yellow-400">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="bg-white/20 backdrop-blur-md border-2 border-white/30 rounded-2xl p-8">
           <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full mx-auto"></div>
           <p className="text-center mt-4 text-white font-bold">Loading the popcorn...</p>
@@ -212,7 +212,7 @@ export default function RoomPage() {
 
   if (!hasJoined) {
     return (
-      <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-red-600 via-orange-500 to-yellow-400">
+      <main className="min-h-screen relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-20 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
@@ -265,7 +265,7 @@ export default function RoomPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-600 via-orange-500 to-yellow-400">
+    <main className="min-h-screen">
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-20 left-20 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>

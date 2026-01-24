@@ -15,7 +15,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-red-600 via-orange-500 to-yellow-400">
+    <main className="min-h-screen relative overflow-hidden">
       {/* Animated Popcorn Background */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-10 left-10 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
