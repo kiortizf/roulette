@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Shuffle } from 'lucide-react';
 
 import { Movie } from '@/lib/types';
 import { getPosterUrl } from '@/lib/tmdb';
@@ -7,19 +7,21 @@ import { getPosterUrl } from '@/lib/tmdb';
 interface SelectedMoviesProps {
   movies: Movie[];
   onRemove: (movieId: number) => void;
+  onShuffle?: () => void;
   userName: string;
   userColor: string;
   minSelections?: number;
   maxSelections?: number;
 }
 
-export default function SelectedMovies({ 
-  movies, 
-  onRemove, 
-  userName, 
+export default function SelectedMovies({
+  movies,
+  onRemove,
+  onShuffle,
+  userName,
   userColor,
   minSelections = 2,
-  maxSelections = 5 
+  maxSelections = 5
 }: SelectedMoviesProps) {
   const isValid = movies.length >= minSelections && movies.length <= maxSelections;
 
@@ -27,17 +29,30 @@ export default function SelectedMovies({
     <div className="glass-dark rounded-2xl p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-semibold flex items-center gap-2">
-          <span 
-            className="w-3 h-3 rounded-full" 
+          <span
+            className="w-3 h-3 rounded-full"
             style={{ backgroundColor: userColor }}
           />
           {userName}'s Picks
         </h3>
-        <span className={`text-sm font-medium ${
-          isValid ? 'text-green-400' : 'text-yellow-400'
-        }`}>
-          {movies.length}/{minSelections}-{maxSelections}
-        </span>
+        <div className="flex items-center gap-2">
+          {onShuffle && movies.length >= 2 && (
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 180 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onShuffle}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              title="Shuffle picks"
+            >
+              <Shuffle className="w-4 h-4 text-purple-400" />
+            </motion.button>
+          )}
+          <span className={`text-sm font-medium ${
+            isValid ? 'text-green-400' : 'text-yellow-400'
+          }`}>
+            {movies.length}/{minSelections}-{maxSelections}
+          </span>
+        </div>
       </div>
 
       {movies.length === 0 ? (

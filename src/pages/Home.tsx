@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Film, Users, Sparkles, Popcorn, Zap, PartyPopper } from 'lucide-react';
+import { Film, Users, Sparkles, Popcorn, Zap, PartyPopper, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getCurrentTheme } from '@/lib/themes';
 
 export default function Home() {
   const navigate = useNavigate();
   const [joinCode, setJoinCode] = useState('');
+  const theme = useMemo(() => getCurrentTheme(), []);
 
   const generateRoomCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -114,6 +116,16 @@ export default function Home() {
             </div>
           </motion.button>
 
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate('/solo')}
+            className="w-full bg-purple-500/30 hover:bg-purple-500/50 border-2 border-purple-400/50 py-4 px-6 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2"
+          >
+            <User className="w-5 h-5" />
+            Solo Mode - Just Me 🎲
+          </motion.button>
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t-4 border-white/30 border-dashed"></div>
@@ -186,11 +198,57 @@ export default function Home() {
           </div>
         </motion.div>
 
+        {/* Seasonal Badge */}
+        {theme.id !== 'default' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="mt-8 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20"
+          >
+            <motion.span
+              animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-xl"
+            >
+              {theme.emoji}
+            </motion.span>
+            <span className="text-sm font-bold text-white/80">{theme.name} Edition</span>
+          </motion.div>
+        )}
+
+        {/* Floating seasonal emojis */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          {theme.floatingEmojis.slice(0, 4).map((emoji, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-3xl opacity-20"
+              style={{
+                left: `${15 + i * 25}%`,
+                top: `${10 + (i % 2) * 60}%`,
+              }}
+              animate={{
+                y: [0, -30, 0],
+                rotate: [0, 15, -15, 0],
+                opacity: [0.15, 0.25, 0.15],
+              }}
+              transition={{
+                duration: 4 + i,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.5,
+              }}
+            >
+              {emoji}
+            </motion.div>
+          ))}
+        </div>
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="mt-8 text-white/70 text-sm font-semibold"
+          className="mt-4 text-white/70 text-sm font-semibold"
         >
           Made with 🧡 for movie nights that can't decide
         </motion.p>

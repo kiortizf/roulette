@@ -112,3 +112,41 @@ export const generateUserId = () => {
 export const getRandomColor = () => {
   return USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)];
 };
+
+// Fun random names for pre-filling
+const ADJECTIVES = [
+  'Cosmic', 'Spicy', 'Crunchy', 'Sleepy', 'Groovy', 'Fuzzy', 'Snazzy', 'Zesty',
+  'Bubbly', 'Crispy', 'Dreamy', 'Funky', 'Goofy', 'Jazzy', 'Quirky', 'Sassy',
+  'Toasty', 'Wacky', 'Zippy', 'Bouncy', 'Cozy', 'Dizzy', 'Fluffy', 'Giggly'
+];
+
+const NOUNS = [
+  'Popcorn', 'Penguin', 'Pickle', 'Pretzel', 'Pancake', 'Panda', 'Pirate',
+  'Burrito', 'Banana', 'Bunny', 'Cookie', 'Cupcake', 'Donut', 'Dumpling',
+  'Muffin', 'Nacho', 'Noodle', 'Nugget', 'Potato', 'Taco', 'Waffle', 'Walrus'
+];
+
+export const generateFunName = (): string => {
+  const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+  const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+  return `${adjective} ${noun}`;
+};
+
+// localStorage helpers for remembering username
+const USERNAME_KEY = 'popcorn_panic_username';
+
+export const getSavedUsername = (): string | null => {
+  try {
+    return localStorage.getItem(USERNAME_KEY);
+  } catch {
+    return null;
+  }
+};
+
+export const saveUsername = (name: string): void => {
+  try {
+    localStorage.setItem(USERNAME_KEY, name);
+  } catch {
+    // localStorage might not be available
+  }
+};

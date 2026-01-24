@@ -14,6 +14,7 @@ import {
   Ban,
   BarChart3,
   Share2,
+  Trophy,
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { Movie } from '@/lib/types';
@@ -35,7 +36,7 @@ import {
   SessionHistory,
   cleanupInactiveUsers,
 } from '@/lib/firebaseService';
-import { getRandomColor } from '@/lib/store';
+import { getRandomColor, getSavedUsername, saveUsername, generateFunName } from '@/lib/store';
 import MovieSearch from '@/components/MovieSearch';
 import SelectedMovies from '@/components/SelectedMovies';
 import RouletteWheel from '@/components/RouletteWheel';
@@ -51,6 +52,8 @@ import FloatingReactions from '@/components/FloatingReactions';
 import ReactionBar from '@/components/ReactionBar';
 import { soundManager, haptic } from '@/lib/sounds';
 import { getPosterUrl } from '@/lib/tmdb';
+import { getAchievements, saveAchievements, checkAndUnlockAchievements, Achievement } from '@/lib/achievements';
+import AchievementsPanel, { AchievementUnlockToast } from '@/components/AchievementsPanel';
 
 export default function RoomPage() {
   const params = useParams();
@@ -72,8 +75,29 @@ export default function RoomPage() {
   const [showAdvancedWheel, setShowAdvancedWheel] = useState(false);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
   const [userReaction, setUserReaction] = useState<string | null>(null);
   const [hasVetoed, setHasVetoed] = useState(false);
+  const [copiedResult, setCopiedResult] = useState(false);
+  const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
+
+  // Load saved username or generate fun name on mount
+  useEffect(() => {
+    const saved = getSavedUsername();
+    if (saved) {
+      setUserName(saved);
+    } else {
+      setUserName(generateFunName());
+    }
+  }, []);
+
+  // Update page title with room code
+  useEffect(() => {
+    document.title = `Room ${roomCode} | Popcorn Panic`;
+    return () => {
+      document.title = 'Popcorn Panic - Movie Night Roulette';
+    };
+  }, [roomCode]);
 
   // Fire confetti celebration!
   const fireConfetti = useCallback(() => {
@@ -194,7 +218,18 @@ export default function RoomPage() {
         console.log('Created new room');
       }
 
+      saveUsername(userName.trim());
       setHasJoined(true);
+
+      // Celebration on join!
+      soundManager.success();
+      haptic.success();
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.7 },
+        colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1']
+      });
     } catch (error) {
       console.error('Error joining room:', error);
       alert('Error joining room: ' + (error as Error).message);
@@ -236,6 +271,19 @@ export default function RoomPage() {
     );
   };
 
+  const handleShuffleMovies = async () => {
+    if (!currentUser || !user) return;
+    const movies = [...(currentUser.selectedMovies || [])];
+    // Fisher-Yates shuffle
+    for (let i = movies.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [movies[i], movies[j]] = [movies[j], movies[i]];
+    }
+    soundManager.pop();
+    haptic.light();
+    await updateUserMovies(roomCode, user.uid, movies);
+  };
+
   const handleToggleReady = async () => {
     if (!currentUser || !user) return;
     if ((currentUser.selectedMovies?.length || 0) < 2) return;
@@ -262,6 +310,28 @@ export default function RoomPage() {
   const handleSpinComplete = async (winner: Movie) => {
     await setRoomWinner(roomCode, winner);
     await setRoomSpinning(roomCode, false);
+
+    // Check achievements
+    const isMyWin = currentUser?.selectedMovies?.some(m => m.id === winner.id) || false;
+    const currentAchievements = getAchievements();
+    const { achievements: updatedAchievements, newUnlocks } = checkAndUnlockAchievements(
+      currentAchievements,
+      {
+        justSpun: true,
+        justWon: isMyWin,
+        usersInRoom: users.length,
+        movieRating: winner.vote_average,
+        movieYear: winner.release_date ? new Date(winner.release_date).getFullYear() : undefined,
+        movieGenres: winner.genre_ids,
+      }
+    );
+    saveAchievements(updatedAchievements);
+
+    // Show first new unlock
+    if (newUnlocks.length > 0) {
+      setNewAchievement(newUnlocks[0]);
+      setTimeout(() => setNewAchievement(null), 4000);
+    }
   };
 
   const handleReset = async () => {
@@ -448,7 +518,7 @@ export default function RoomPage() {
                 🔥
               </motion.span>
             </motion.h1>
-            <div className="flex items-center gap-2 mt-2 justify-center sm:justify-start">
+            <div className="flex items-center gap-2 mt-2 justify-center sm:justify-start flex-wrap">
               <span className="text-white/80 font-bold text-sm">ROOM CODE:</span>
               <motion.code
                 className="font-mono font-black text-yellow-300 text-2xl bg-black/40 px-4 py-1 rounded-xl border-2 border-yellow-400/50"
@@ -456,6 +526,20 @@ export default function RoomPage() {
               >
                 {roomCode}
               </motion.code>
+              {/* Activity Indicator */}
+              <div className="flex items-center gap-1.5 bg-green-500/20 px-3 py-1 rounded-full border border-green-400/50">
+                <motion.div
+                  className="w-2 h-2 bg-green-400 rounded-full"
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [1, 0.7, 1]
+                  }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <span className="text-green-300 text-sm font-bold">
+                  {users.length} online
+                </span>
+              </div>
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
@@ -496,6 +580,15 @@ export default function RoomPage() {
 
           <div className="flex gap-2">
             <SoundToggle />
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowAchievements(!showAchievements)}
+              className="flex items-center gap-2 bg-yellow-500/30 hover:bg-yellow-500/50 border-2 border-yellow-400/50 px-4 py-2 rounded-xl transition-colors font-bold"
+            >
+              <Trophy className="w-4 h-4" />
+              <span className="hidden sm:inline">Badges</span>
+            </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -637,18 +730,31 @@ export default function RoomPage() {
 
                 <div className="flex gap-3 mb-3">
                   <button
+                    onClick={() => {
+                      const winner = roomData.selectedWinner!;
+                      const year = new Date(winner.release_date).getFullYear();
+                      const text = `🎬 Tonight we're watching: ${winner.title} (${year}) ⭐ ${winner.vote_average.toFixed(1)}\n\nPicked with Popcorn Panic! 🍿`;
+                      navigator.clipboard.writeText(text);
+                      setCopiedResult(true);
+                      setTimeout(() => setCopiedResult(false), 2000);
+                    }}
+                    className="flex items-center justify-center gap-2 glass hover:bg-white/10 px-4 py-3 rounded-xl font-semibold transition-colors"
+                  >
+                    {copiedResult ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
+                  </button>
+                  <button
                     onClick={() => setSelectedMovieDetails(roomData.selectedWinner)}
                     className="flex-1 flex items-center justify-center gap-2 glass hover:bg-white/10 py-3 rounded-xl font-semibold transition-colors"
                   >
                     <Info className="w-5 h-5" />
-                    More Details
+                    Details
                   </button>
                   <button
                     onClick={handleReset}
                     className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 py-3 rounded-xl font-semibold transition-all"
                   >
                     <RotateCcw className="w-5 h-5" />
-                    Play Again
+                    Again
                   </button>
                 </div>
 
@@ -766,6 +872,36 @@ export default function RoomPage() {
           )}
         </AnimatePresence>
 
+        {/* Achievements Panel */}
+        <AnimatePresence>
+          {showAchievements && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              onClick={() => setShowAchievements(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="max-w-2xl w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <AchievementsPanel />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Achievement Unlock Toast */}
+        <AnimatePresence>
+          {newAchievement && (
+            <AchievementUnlockToast achievement={newAchievement} />
+          )}
+        </AnimatePresence>
+
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Users & Selection */}
@@ -776,6 +912,7 @@ export default function RoomPage() {
               <SelectedMovies
                 movies={currentUser.selectedMovies || []}
                 onRemove={handleRemoveMovie}
+                onShuffle={handleShuffleMovies}
                 userName={currentUser.name}
                 userColor={currentUser.color}
               />
