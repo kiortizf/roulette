@@ -62,35 +62,46 @@ export const tmdbApi = {
     'primary_release_date.lte'?: string;
     with_original_language?: string;
     without_original_language?: string;
-    with_runtime?: { min?: number; max?: number };
+    'with_runtime.gte'?: number;
+    'with_runtime.lte'?: number;
     with_watch_providers?: string;
     watch_region?: string;
     with_cast?: string;
     with_crew?: string;
     with_keywords?: string;
-  } = {}): Promise<{ results: Movie[] }> => {
+    [key: string]: string | number | undefined; // Allow additional TMDB params
+  } = {}): Promise<{ results: Movie[]; total_pages?: number; total_results?: number }> => {
     const queryParams: Record<string, string> = {
       sort_by: params.sort_by || 'popularity.desc',
       page: (params.page || 1).toString(),
     };
 
-    if (params.with_genres) queryParams.with_genres = params.with_genres;
-    if (params.without_genres) queryParams.without_genres = params.without_genres;
-    if (params['vote_average.gte']) queryParams['vote_average.gte'] = params['vote_average.gte'].toString();
-    if (params['vote_average.lte']) queryParams['vote_average.lte'] = params['vote_average.lte'].toString();
-    if (params['vote_count.gte']) queryParams['vote_count.gte'] = params['vote_count.gte'].toString();
-    if (params['vote_count.lte']) queryParams['vote_count.lte'] = params['vote_count.lte'].toString();
-    if (params['primary_release_date.gte']) queryParams['primary_release_date.gte'] = params['primary_release_date.gte'];
-    if (params['primary_release_date.lte']) queryParams['primary_release_date.lte'] = params['primary_release_date.lte'];
-    if (params.with_original_language) queryParams.with_original_language = params.with_original_language;
-    if (params.without_original_language) queryParams.without_original_language = params.without_original_language;
-    if (params.with_runtime?.min) queryParams['with_runtime.gte'] = params.with_runtime.min.toString();
-    if (params.with_runtime?.max) queryParams['with_runtime.lte'] = params.with_runtime.max.toString();
-    if (params.with_watch_providers) queryParams.with_watch_providers = params.with_watch_providers;
-    if (params.watch_region) queryParams.watch_region = params.watch_region;
-    if (params.with_cast) queryParams.with_cast = params.with_cast;
-    if (params.with_crew) queryParams.with_crew = params.with_crew;
-    if (params.with_keywords) queryParams.with_keywords = params.with_keywords;
+    // Map all params to query string, converting numbers to strings
+    const paramMappings: Array<[string, string | number | undefined]> = [
+      ['with_genres', params.with_genres],
+      ['without_genres', params.without_genres],
+      ['vote_average.gte', params['vote_average.gte']],
+      ['vote_average.lte', params['vote_average.lte']],
+      ['vote_count.gte', params['vote_count.gte']],
+      ['vote_count.lte', params['vote_count.lte']],
+      ['primary_release_date.gte', params['primary_release_date.gte']],
+      ['primary_release_date.lte', params['primary_release_date.lte']],
+      ['with_original_language', params.with_original_language],
+      ['without_original_language', params.without_original_language],
+      ['with_runtime.gte', params['with_runtime.gte']],
+      ['with_runtime.lte', params['with_runtime.lte']],
+      ['with_watch_providers', params.with_watch_providers],
+      ['watch_region', params.watch_region],
+      ['with_cast', params.with_cast],
+      ['with_crew', params.with_crew],
+      ['with_keywords', params.with_keywords],
+    ];
+
+    paramMappings.forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams[key] = value.toString();
+      }
+    });
 
     return fetchTMDB('/discover/movie', queryParams);
   },
