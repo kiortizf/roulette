@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Copy, 
-  Check, 
-  LogOut, 
-  Play, 
+import confetti from 'canvas-confetti';
+import {
+  Copy,
+  Check,
+  LogOut,
+  Play,
   RotateCcw,
   Info,
   History as HistoryIcon,
   Vote,
+  Ban,
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { Movie } from '@/lib/types';
@@ -59,6 +61,45 @@ export default function RoomPage() {
   const [history, setHistory] = useState<SessionHistory[]>([]);
   const [showVoting, setShowVoting] = useState(false);
   const [showAdvancedWheel, setShowAdvancedWheel] = useState(false);
+  const [userReaction, setUserReaction] = useState<string | null>(null);
+  const [hasVetoed, setHasVetoed] = useState(false);
+
+  // Fire confetti celebration!
+  const fireConfetti = useCallback(() => {
+    const duration = 3000;
+    const end = Date.now() + duration;
+
+    const frame = () => {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.7 },
+        colors: ['#ff0000', '#ffa500', '#ffff00', '#00ff00', '#0000ff', '#ff00ff']
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.7 },
+        colors: ['#ff0000', '#ffa500', '#ffff00', '#00ff00', '#0000ff', '#ff00ff']
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+
+    // Big initial burst
+    confetti({
+      particleCount: 100,
+      spread: 100,
+      origin: { y: 0.6 },
+      colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+    });
+
+    frame();
+  }, []);
 
   const currentUser = user ? roomData?.users?.[user.uid] : null;
   const users = roomData?.users ? Object.values(roomData.users) : [];
@@ -78,10 +119,14 @@ export default function RoomPage() {
 
     const unsubscribe = subscribeToRoom(roomCode, (data) => {
       setRoomData(data);
-      
+
       // Show winner modal when winner is set
       if (data?.selectedWinner && !showWinner) {
         setShowWinner(true);
+        setHasVetoed(false); // Reset veto for new round
+        setUserReaction(null); // Reset reaction
+        // Fire confetti!
+        setTimeout(() => fireConfetti(), 300);
       }
     });
 
@@ -454,7 +499,7 @@ export default function RoomPage() {
                   <p className="text-gray-400">The wheel has spoken</p>
                 </div>
 
-                <div className="bg-black/30 rounded-2xl p-6 mb-6">
+                <div className="bg-black/30 rounded-2xl p-6 mb-4">
                   <h3 className="text-3xl font-bold mb-2">{roomData.selectedWinner.title}</h3>
                   <div className="flex items-center gap-4 text-gray-300 mb-4">
                     <span className="flex items-center gap-1">
@@ -477,7 +522,38 @@ export default function RoomPage() {
                   <p className="text-gray-400 line-clamp-3">{roomData.selectedWinner.overview}</p>
                 </div>
 
-                <div className="flex gap-3">
+                {/* Emoji Reactions */}
+                <div className="mb-4">
+                  <p className="text-center text-gray-400 text-sm mb-2">How do you feel about this?</p>
+                  <div className="flex justify-center gap-2">
+                    {['😍', '🔥', '😂', '🤮', '👏', '💀'].map((emoji) => (
+                      <motion.button
+                        key={emoji}
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setUserReaction(emoji)}
+                        className={`text-3xl p-2 rounded-xl transition-all ${
+                          userReaction === emoji
+                            ? 'bg-purple-500/50 ring-2 ring-purple-400'
+                            : 'hover:bg-white/10'
+                        }`}
+                      >
+                        {emoji}
+                      </motion.button>
+                    ))}
+                  </div>
+                  {userReaction && (
+                    <motion.p
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-center text-purple-300 text-sm mt-2"
+                    >
+                      You reacted with {userReaction}
+                    </motion.p>
+                  )}
+                </div>
+
+                <div className="flex gap-3 mb-3">
                   <button
                     onClick={() => setSelectedMovieDetails(roomData.selectedWinner)}
                     className="flex-1 flex items-center justify-center gap-2 glass hover:bg-white/10 py-3 rounded-xl font-semibold transition-colors"
@@ -493,6 +569,31 @@ export default function RoomPage() {
                     Play Again
                   </button>
                 </div>
+
+                {/* Veto Button */}
+                {!hasVetoed && (
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={async () => {
+                      setHasVetoed(true);
+                      setShowWinner(false);
+                      // Trigger respin
+                      await setRoomSpinning(roomCode, true);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 bg-red-600/80 hover:bg-red-600 py-3 rounded-xl font-bold transition-all border-2 border-red-400/50"
+                  >
+                    <Ban className="w-5 h-5" />
+                    VETO! (Use your 1 veto to respin)
+                  </motion.button>
+                )}
+                {hasVetoed && (
+                  <p className="text-center text-red-400/70 text-sm">
+                    You already used your veto this round
+                  </p>
+                )}
               </motion.div>
             </motion.div>
           )}
@@ -681,9 +782,10 @@ export default function RoomPage() {
                   </motion.div>
                 )}
 
-                {/* Roulette */}
+                {/* Roulette - with weighted votes! */}
                 <RouletteWheel
                   movies={allMovies}
+                  votes={Object.fromEntries(allMovies.map(m => [m.id, getMovieVotes(m.id).total]))}
                   isSpinning={roomData?.isSpinning || false}
                   onSpinComplete={handleSpinComplete}
                 />

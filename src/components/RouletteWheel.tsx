@@ -9,11 +9,28 @@ import { haptic } from '@/lib/sounds';
 
 interface RouletteWheelProps {
   movies: Movie[];
+  votes?: { [movieId: number]: number }; // Vote totals per movie
   isSpinning: boolean;
   onSpinComplete: (winner: Movie) => void;
 }
 
-export default function RouletteWheel({ movies, isSpinning, onSpinComplete }: RouletteWheelProps) {
+// Weighted random selection - movies with more upvotes have higher chance
+function selectWeightedWinner(movies: Movie[], votes: { [movieId: number]: number } = {}): number {
+  // Base weight of 10, plus votes (so even -5 votes still has weight 5)
+  const weights = movies.map(m => Math.max(1, 10 + (votes[m.id] || 0)));
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+
+  let random = Math.random() * totalWeight;
+  for (let i = 0; i < weights.length; i++) {
+    random -= weights[i];
+    if (random <= 0) {
+      return i;
+    }
+  }
+  return movies.length - 1; // Fallback
+}
+
+export default function RouletteWheel({ movies, votes = {}, isSpinning, onSpinComplete }: RouletteWheelProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [spinCount, setSpinCount] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -30,13 +47,12 @@ export default function RouletteWheel({ movies, isSpinning, onSpinComplete }: Ro
 
     // Play spin sound once at the start
     if (!hasPlayedSpinSound.current) {
-
       haptic.medium();
       hasPlayedSpinSound.current = true;
     }
 
-    // Calculate winner index
-    const winnerIndex = Math.floor(Math.random() * movies.length);
+    // Calculate winner index using WEIGHTED selection!
+    const winnerIndex = selectWeightedWinner(movies, votes);
     const totalSpins = 30 + winnerIndex; // Spin at least 30 times
     let count = 0;
     let speed = 50; // Start fast
@@ -81,7 +97,7 @@ export default function RouletteWheel({ movies, isSpinning, onSpinComplete }: Ro
         clearInterval(intervalRef.current);
       }
     };
-  }, [isSpinning, movies, onSpinComplete]);
+  }, [isSpinning, movies, votes, onSpinComplete]);
 
   if (movies.length === 0) {
     return (
