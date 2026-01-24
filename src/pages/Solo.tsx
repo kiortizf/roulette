@@ -15,6 +15,12 @@ import { soundManager, haptic } from '../lib/sounds';
 import { getPosterUrl } from '../lib/tmdb';
 
 export default function SoloPage() {
+    // Randomize all movies (fetch random movies from TMDB or shuffle existing)
+    const handleRandomizeAll = () => {
+      // For now, just shuffle the current selectedMovies
+      if (selectedMovies.length < 2) return;
+      handleShuffleMovies();
+    };
   const navigate = useNavigate();
   const [selectedMovies, setSelectedMovies] = useState<Movie[]>([]);
   const [isSpinning, setIsSpinning] = useState(false);
