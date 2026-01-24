@@ -30,7 +30,8 @@ export default function MoodPicker({ onClose, onMovieSelected }: MoodPickerProps
       };
 
       if (mood.genres.length > 0) {
-        params.with_genres = mood.genres.join(',');
+        // Use pipe for OR logic (any of these genres), not comma (all genres)
+        params.with_genres = mood.genres.join('|');
       }
 
       if (mood.minRating) {
