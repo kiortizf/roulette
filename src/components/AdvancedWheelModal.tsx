@@ -115,7 +115,8 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
       };
 
       if (selectedGenres.length > 0) {
-        params.with_genres = selectedGenres.join(',');
+        // Use pipe for OR logic - movies can have ANY of these genres
+        params.with_genres = selectedGenres.join('|');
       }
 
       if (decade) {
@@ -130,11 +131,11 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
         params['vote_average.lte'] = selectedRating.max;
       }
 
-      if (selectedRuntime.min || selectedRuntime.max) {
-        params.with_runtime = {
-          min: selectedRuntime.min,
-          max: selectedRuntime.max,
-        };
+      if (selectedRuntime.min) {
+        params['with_runtime.gte'] = selectedRuntime.min;
+      }
+      if (selectedRuntime.max) {
+        params['with_runtime.lte'] = selectedRuntime.max;
       }
 
       // Language filter
@@ -160,9 +161,9 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
         }
       }
 
-      // Keywords filter
+      // Keywords filter - use pipe for OR logic (any of these keywords)
       if (selectedKeywords.length > 0) {
-        params.with_keywords = selectedKeywords.map(k => k.id).join(',');
+        params.with_keywords = selectedKeywords.map(k => k.id).join('|');
       }
 
       // Fetch movies
