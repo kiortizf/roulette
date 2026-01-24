@@ -91,7 +91,7 @@ export default function Home() {
                   if (e.key === 'Enter') {
                     const input = e.currentTarget;
                     if (input.value.trim()) {
-                      router.push(`/room/${input.value.toUpperCase()}`);
+                      navigate(`/room/${input.value.toUpperCase()}`);
                     }
                   }
                 }}
