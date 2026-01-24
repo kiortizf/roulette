@@ -1,7 +1,7 @@
 import { Movie, MovieDetails, WatchProviderResponse, Video, Cast } from './types';
 
-const BASE_URL = process.env.NEXT_PUBLIC_TMDB_BASE_URL || 'https://api.themoviedb.org/3';
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL || 'https://api.themoviedb.org/3';
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 if (!API_KEY) {
   console.warn('TMDB API key is not set. Please add NEXT_PUBLIC_TMDB_API_KEY to your .env.local file');

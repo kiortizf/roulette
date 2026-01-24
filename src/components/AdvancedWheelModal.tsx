@@ -6,7 +6,7 @@ import { X, Sparkles, Calendar, Star, Clock, Film, Shuffle } from 'lucide-react'
 import { GENRE_LIST, GenreId } from '@/lib/genres';
 import { tmdbApi } from '@/lib/tmdb';
 import { Movie } from '@/lib/types';
-import Image from 'next/image';
+
 import { getPosterUrl } from '@/lib/tmdb';
 import { soundManager, haptic } from '@/lib/sounds';
 

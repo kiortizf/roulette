@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
+
 import { Movie } from '@/lib/types';
 import { getPosterUrl } from '@/lib/tmdb';
 import { Sparkles } from 'lucide-react';

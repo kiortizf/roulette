@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { X, Play, ExternalLink, Star, Clock, Calendar } from 'lucide-react';
-import Image from 'next/image';
+
 import { Movie } from '@/lib/types';
 import { tmdbApi, getPosterUrl, getBackdropUrl, getProfileUrl } from '@/lib/tmdb';
 

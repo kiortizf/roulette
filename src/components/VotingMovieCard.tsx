@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
-import Image from 'next/image';
+
 import { Movie } from '@/lib/types';
 import { getPosterUrl } from '@/lib/tmdb';
 import { useState } from 'react';
