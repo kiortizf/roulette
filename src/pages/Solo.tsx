@@ -15,11 +15,34 @@ import { soundManager, haptic } from '../lib/sounds';
 import { getPosterUrl } from '../lib/tmdb';
 
 export default function SoloPage() {
-    // Randomize all movies (fetch random movies from TMDB or shuffle existing)
-    const handleRandomizeAll = () => {
-      // For now, just shuffle the current selectedMovies
-      if (selectedMovies.length < 2) return;
-      handleShuffleMovies();
+      const [randomizing, setRandomizing] = useState(false);
+    // Randomize all movies: fill up to 10 with random movies from TMDB, avoiding duplicates
+    const handleRandomizeAll = async () => {
+      if (randomizing) return;
+      setRandomizing(true);
+      const maxSelections = 10;
+      let movies = [...selectedMovies];
+      try {
+        while (movies.length < maxSelections) {
+          const randomPage = Math.floor(Math.random() * 25) + 1;
+          const trending = await import('../lib/tmdb').then(m => m.tmdbApi.getTrending('week'));
+          const shuffled = trending.results.sort(() => 0.5 - Math.random());
+          for (const movie of shuffled) {
+            if (!movies.some(m => m.id === movie.id)) {
+              movies.push(movie);
+              if (movies.length >= maxSelections) break;
+            }
+          }
+          if (trending.results.length === 0) break;
+        }
+        setSelectedMovies(movies.slice(0, maxSelections));
+        soundManager.pop();
+        haptic.light();
+      } catch (err) {
+        alert('Failed to fetch random movies. Please try again.');
+      } finally {
+        setRandomizing(false);
+      }
     };
   const navigate = useNavigate();
   const [selectedMovies, setSelectedMovies] = useState<Movie[]>([]);
@@ -387,10 +410,11 @@ export default function SoloPage() {
                     </button>
                     <button
                       onClick={handleRandomizeAll}
-                      className="flex items-center gap-2 bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 px-4 py-2 rounded-xl font-semibold transition-all text-sm"
+                      disabled={randomizing}
+                      className={`flex items-center gap-2 bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 px-4 py-2 rounded-xl font-semibold transition-all text-sm ${randomizing ? 'opacity-60 cursor-not-allowed' : ''}`}
                     >
                       <span className="text-lg">🎲</span>
-                      <span className="hidden sm:inline">Randomize All</span>
+                      <span className="hidden sm:inline">{randomizing ? 'Randomizing...' : 'Randomize All'}</span>
                     </button>
                   </div>
                 </div>
