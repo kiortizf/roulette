@@ -8,6 +8,7 @@ cwd = "."
 
 [build.environment]
 NODE_VERSION = "20"
+NEXT_TELEMETRY_DISABLED = "1"
 
 # Environment variables (set these in Cloudflare Dashboard)
 # NEXT_PUBLIC_TMDB_API_KEY
