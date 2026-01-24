@@ -1,9 +1,7 @@
-'use client';
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, signInAnonymous, signInWithGoogle } from '@/lib/firebase';
+import { auth, signInAnonymous, signInWithGoogle, isFirebaseConfigured } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -16,12 +14,34 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, loading] = useAuthState(auth);
-  const [displayName, setDisplayName] = useState<string>('');
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Auto sign in anonymously if not signed in
-    if (!loading && !user) {
+    // Handle mock auth for local mode
+    if (!isFirebaseConfigured) {
+      const mockUser = {
+        uid: 'local-user-' + Math.random().toString(36).substring(7),
+        isAnonymous: true,
+        displayName: 'Local User',
+      } as User;
+      setUser(mockUser);
+      setLoading(false);
+      return;
+    }
+
+    // Subscribe to auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    // Auto sign in anonymously if not signed in and Firebase is configured
+    if (!loading && !user && isFirebaseConfigured) {
       signInAnonymous().catch(console.error);
     }
   }, [user, loading]);

@@ -50,6 +50,7 @@ export default function RoomPage() {
   
   const [userName, setUserName] = useState('');
   const [hasJoined, setHasJoined] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showWinner, setShowWinner] = useState(false);
   const [selectedMovieDetails, setSelectedMovieDetails] = useState<Movie | null>(null);
@@ -98,10 +99,21 @@ export default function RoomPage() {
   }, [showHistory, user]);
 
   const handleJoinRoom = async () => {
-    if (!userName.trim() || !user) return;
+    if (!userName.trim()) {
+      console.log('No username provided');
+      return;
+    }
+    if (!user) {
+      console.log('No user authenticated - waiting for auth');
+      return;
+    }
+
+    setIsJoining(true);
+    console.log('Joining room:', roomCode, 'as user:', user.uid);
 
     try {
       const exists = await roomExists(roomCode);
+      console.log('Room exists:', exists);
       
       const newUser: RoomUser = {
         id: user.uid,
@@ -115,13 +127,18 @@ export default function RoomPage() {
 
       if (exists) {
         await joinRoom(roomCode, newUser);
+        console.log('Joined existing room');
       } else {
         await createRoom(roomCode, newUser);
+        console.log('Created new room');
       }
 
       setHasJoined(true);
     } catch (error) {
       console.error('Error joining room:', error);
+      alert('Error joining room: ' + (error as Error).message);
+    } finally {
+      setIsJoining(false);
     }
   };
 
@@ -240,22 +257,27 @@ export default function RoomPage() {
                   id="name"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleJoinRoom()}
+                  onKeyPress={(e) => e.key === 'Enter' && !isJoining && handleJoinRoom()}
                   placeholder="Enter your name"
                   className="w-full bg-white/30 backdrop-blur-sm border-2 border-white/50 rounded-xl px-4 py-3 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300 font-semibold"
                   maxLength={20}
                   autoFocus
+                  disabled={isJoining}
                 />
               </div>
 
+              {authLoading && (
+                <p className="text-white/80 text-sm text-center">🔄 Connecting to server...</p>
+              )}
+
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: isJoining ? 1 : 1.05 }}
+                whileTap={{ scale: isJoining ? 1 : 0.95 }}
                 onClick={handleJoinRoom}
-                disabled={!userName.trim()}
+                disabled={!userName.trim() || isJoining || authLoading}
                 className="w-full bg-white text-red-600 hover:bg-yellow-100 disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed py-4 rounded-xl font-black text-xl transition-all duration-300 shadow-lg"
               >
-                🍿 LET'S GO!
+                {isJoining ? '🍿 JOINING...' : authLoading ? '⏳ LOADING...' : '🍿 LET\'S GO!'}
               </motion.button>
             </div>
           </motion.div>
