@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play, ExternalLink, Star, Clock, Calendar } from 'lucide-react';
 
 import { Movie } from '@/lib/types';
 import { tmdbApi, getPosterUrl, getBackdropUrl, getProfileUrl } from '@/lib/tmdb';
+import TrailerModal from './TrailerModal';
 
 interface MovieDetailsModalProps {
   movie: Movie;
@@ -11,6 +13,7 @@ interface MovieDetailsModalProps {
 }
 
 export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalProps) {
+  const [showTrailer, setShowTrailer] = useState(false);
   const { data: details } = useQuery({
     queryKey: ['movie-details', movie.id],
     queryFn: () => tmdbApi.getMovieDetails(movie.id),
@@ -132,15 +135,13 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                   </div>
 
                   {trailer && (
-                    <a
-                      href={`https://www.youtube.com/watch?v=${trailer.key}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => setShowTrailer(true)}
                       className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold transition-colors"
                     >
                       <Play className="w-5 h-5" />
                       Watch Trailer
-                    </a>
+                    </button>
                   )}
                 </div>
               </div>
@@ -274,6 +275,17 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
           </div>
         </motion.div>
       </div>
+
+      {/* Trailer Modal */}
+      <AnimatePresence>
+        {showTrailer && trailer && (
+          <TrailerModal
+            videoKey={trailer.key}
+            title={movie.title}
+            onClose={() => setShowTrailer(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

@@ -12,6 +12,7 @@ import {
   History as HistoryIcon,
   Vote,
   Ban,
+  BarChart3,
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { Movie } from '@/lib/types';
@@ -43,6 +44,8 @@ import VotingMovieCard from '@/components/VotingMovieCard';
 import HistoryPanel from '@/components/HistoryPanel';
 import SoundToggle from '@/components/SoundToggle';
 import AdvancedWheelModal from '@/components/AdvancedWheelModal';
+import MoodPicker from '@/components/MoodPicker';
+import StatsPanel from '@/components/StatsPanel';
 
 export default function RoomPage() {
   const params = useParams();
@@ -61,6 +64,8 @@ export default function RoomPage() {
   const [history, setHistory] = useState<SessionHistory[]>([]);
   const [showVoting, setShowVoting] = useState(false);
   const [showAdvancedWheel, setShowAdvancedWheel] = useState(false);
+  const [showMoodPicker, setShowMoodPicker] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const [userReaction, setUserReaction] = useState<string | null>(null);
   const [hasVetoed, setHasVetoed] = useState(false);
 
@@ -449,6 +454,15 @@ export default function RoomPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => setShowStats(!showStats)}
+              className="flex items-center gap-2 bg-blue-500/30 hover:bg-blue-500/50 border-2 border-blue-400/50 px-4 py-2 rounded-xl transition-colors font-bold"
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Stats</span>
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setShowHistory(!showHistory)}
               className="flex items-center gap-2 bg-purple-500/30 hover:bg-purple-500/50 border-2 border-purple-400/50 px-4 py-2 rounded-xl transition-colors font-bold"
             >
@@ -619,6 +633,16 @@ export default function RoomPage() {
           )}
         </AnimatePresence>
 
+        {/* Mood Picker Modal */}
+        <AnimatePresence>
+          {showMoodPicker && (
+            <MoodPicker
+              onClose={() => setShowMoodPicker(false)}
+              onMovieSelected={handleAddMovie}
+            />
+          )}
+        </AnimatePresence>
+
         {/* History Panel */}
         <AnimatePresence>
           {showHistory && (
@@ -636,8 +660,8 @@ export default function RoomPage() {
                 className="max-w-2xl w-full"
                 onClick={(e) => e.stopPropagation()}
               >
-                <HistoryPanel 
-                  history={history} 
+                <HistoryPanel
+                  history={history}
                   onMovieClick={(movieId) => {
                     const movie = history.find(h => h.winner.id === movieId)?.winner;
                     if (movie) {
@@ -645,6 +669,29 @@ export default function RoomPage() {
                     }
                   }}
                 />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Stats Panel */}
+        <AnimatePresence>
+          {showStats && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              onClick={() => setShowStats(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="max-w-2xl w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <StatsPanel stats={roomData?.stats} users={users} />
               </motion.div>
             </motion.div>
           )}
@@ -838,13 +885,22 @@ export default function RoomPage() {
                       Choose 2-5 movies you'd like to watch
                     </p>
                   </div>
-                  <button
-                    onClick={() => setShowAdvancedWheel(true)}
-                    className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-4 py-2 rounded-xl font-semibold transition-all text-sm"
-                  >
-                    <Play className="w-4 h-4" />
-                    <span className="hidden sm:inline">Advanced Wheel</span>
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowMoodPicker(true)}
+                      className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 px-4 py-2 rounded-xl font-semibold transition-all text-sm"
+                    >
+                      <span className="text-lg">😌</span>
+                      <span className="hidden sm:inline">Pick by Mood</span>
+                    </button>
+                    <button
+                      onClick={() => setShowAdvancedWheel(true)}
+                      className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-4 py-2 rounded-xl font-semibold transition-all text-sm"
+                    >
+                      <Play className="w-4 h-4" />
+                      <span className="hidden sm:inline">Advanced Wheel</span>
+                    </button>
+                  </div>
                 </div>
                 <MovieSearch
                   onAddMovie={handleAddMovie}

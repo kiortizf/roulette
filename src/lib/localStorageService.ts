@@ -1,4 +1,4 @@
-import { Movie } from './types';
+import { Movie, RoomStats } from './types';
 
 // Local storage fallback when Firebase is not configured
 interface LocalRoom {
@@ -7,6 +7,7 @@ interface LocalRoom {
   isSpinning: boolean;
   selectedWinner: Movie | null;
   createdAt: number;
+  stats?: RoomStats;
 }
 
 const LOCAL_ROOMS_KEY = 'movie-roulette-rooms';
@@ -135,8 +136,6 @@ class LocalStorageService {
     const room = this.rooms.get(roomCode);
     if (room) {
       room.selectedWinner = movie;
-      this.saveToStorage();
-      this.notifyListeners(roomCode);
 
       // Calculate total votes for all movies
       const allVotes: { [movieId: string]: number } = {};
@@ -147,6 +146,64 @@ class LocalStorageService {
           });
         }
       });
+
+      // Find which user submitted the winning movie
+      let winningUserId: string | null = null;
+      let winningUserName: string = '';
+      Object.entries(room.users).forEach(([odUserId, user]: [string, any]) => {
+        if (user.selectedMovies?.some((m: Movie) => m.id === movie.id)) {
+          winningUserId = odUserId;
+          winningUserName = user.name;
+        }
+      });
+
+      // Update stats
+      const currentStats = room.stats || {
+        totalSpins: 0,
+        moviesWatched: 0,
+        userWins: {},
+        genreCounts: {},
+        currentStreak: null,
+      };
+
+      const newStats: RoomStats = {
+        totalSpins: currentStats.totalSpins + 1,
+        moviesWatched: currentStats.moviesWatched + 1,
+        userWins: { ...currentStats.userWins },
+        genreCounts: { ...currentStats.genreCounts },
+        currentStreak: currentStats.currentStreak,
+      };
+
+      // Update winner count
+      if (winningUserId) {
+        newStats.userWins[winningUserId] = (newStats.userWins[winningUserId] || 0) + 1;
+
+        // Update streak
+        if (currentStats.currentStreak?.odUserId === winningUserId) {
+          newStats.currentStreak = {
+            odUserId: winningUserId,
+            userName: winningUserName,
+            count: currentStats.currentStreak.count + 1,
+          };
+        } else {
+          newStats.currentStreak = {
+            odUserId: winningUserId,
+            userName: winningUserName,
+            count: 1,
+          };
+        }
+      }
+
+      // Update genre counts
+      if (movie.genre_ids) {
+        movie.genre_ids.forEach(genreId => {
+          newStats.genreCounts[genreId] = (newStats.genreCounts[genreId] || 0) + 1;
+        });
+      }
+
+      room.stats = newStats;
+      this.saveToStorage();
+      this.notifyListeners(roomCode);
 
       // Save to history
       this.saveToHistory(roomCode, movie, Object.values(room.users).map((u: any) => u.name), allVotes);

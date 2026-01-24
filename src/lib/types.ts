@@ -60,3 +60,15 @@ export interface Cast {
   profile_path: string | null;
   order: number;
 }
+
+export interface RoomStats {
+  totalSpins: number;
+  moviesWatched: number;
+  userWins: { [odUserId: string]: number };  // How many times each user's pick won
+  genreCounts: { [genreId: number]: number };  // Most watched genres
+  currentStreak: {
+    odUserId: string;
+    userName: string;
+    count: number;
+  } | null;
+}

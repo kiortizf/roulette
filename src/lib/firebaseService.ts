@@ -1,7 +1,7 @@
 import { ref, set, update, onValue, remove, push, get } from 'firebase/database';
 import { database, isFirebaseConfigured } from './firebase';
 import { localStorageService } from './localStorageService';
-import { Movie } from './types';
+import { Movie, RoomStats } from './types';
 
 // Use local storage if Firebase is not configured
 const useLocalStorage = !isFirebaseConfigured;
@@ -31,6 +31,7 @@ export interface RoomData {
   isSpinning: boolean;
   selectedWinner: Movie | null;
   history: SessionHistory[];
+  stats?: RoomStats;
 }
 
 export interface SessionHistory {
@@ -130,7 +131,7 @@ export const setRoomWinner = async (roomCode: string, winner: Movie | null) => {
   if (useLocalStorage) {
     return localStorageService.setRoomWinner(roomCode, winner!);
   }
-  
+
   const winnerRef = ref(database, `rooms/${roomCode}/selectedWinner`);
   await set(winnerRef, winner);
 
@@ -140,7 +141,7 @@ export const setRoomWinner = async (roomCode: string, winner: Movie | null) => {
     const snapshot = await get(roomRef);
     if (snapshot.exists()) {
       const roomData = snapshot.val() as RoomData;
-      
+
       // Calculate total votes for all movies
       const allVotes: { [movieId: string]: number } = {};
       Object.values(roomData.users).forEach(user => {
@@ -150,6 +151,64 @@ export const setRoomWinner = async (roomCode: string, winner: Movie | null) => {
           });
         }
       });
+
+      // Find which user submitted the winning movie
+      let winningUserId: string | null = null;
+      let winningUserName: string = '';
+      Object.entries(roomData.users).forEach(([odUserId, user]) => {
+        if (user.selectedMovies?.some(m => m.id === winner.id)) {
+          winningUserId = odUserId;
+          winningUserName = user.name;
+        }
+      });
+
+      // Update stats
+      const currentStats = roomData.stats || {
+        totalSpins: 0,
+        moviesWatched: 0,
+        userWins: {},
+        genreCounts: {},
+        currentStreak: null,
+      };
+
+      const newStats: RoomStats = {
+        totalSpins: currentStats.totalSpins + 1,
+        moviesWatched: currentStats.moviesWatched + 1,
+        userWins: { ...currentStats.userWins },
+        genreCounts: { ...currentStats.genreCounts },
+        currentStreak: currentStats.currentStreak,
+      };
+
+      // Update winner count
+      if (winningUserId) {
+        newStats.userWins[winningUserId] = (newStats.userWins[winningUserId] || 0) + 1;
+
+        // Update streak
+        if (currentStats.currentStreak?.odUserId === winningUserId) {
+          newStats.currentStreak = {
+            odUserId: winningUserId,
+            userName: winningUserName,
+            count: currentStats.currentStreak.count + 1,
+          };
+        } else {
+          newStats.currentStreak = {
+            odUserId: winningUserId,
+            userName: winningUserName,
+            count: 1,
+          };
+        }
+      }
+
+      // Update genre counts
+      if (winner.genre_ids) {
+        winner.genre_ids.forEach(genreId => {
+          newStats.genreCounts[genreId] = (newStats.genreCounts[genreId] || 0) + 1;
+        });
+      }
+
+      // Save stats
+      const statsRef = ref(database, `rooms/${roomCode}/stats`);
+      await set(statsRef, newStats);
 
       // Save to history
       const historyRef = ref(database, `rooms/${roomCode}/history`);
@@ -163,8 +222,8 @@ export const setRoomWinner = async (roomCode: string, winner: Movie | null) => {
       });
 
       // Also save to user's personal history
-      Object.keys(roomData.users).forEach(async (userId) => {
-        const userHistoryRef = ref(database, `userHistory/${userId}`);
+      Object.keys(roomData.users).forEach(async (odUserId) => {
+        const userHistoryRef = ref(database, `userHistory/${odUserId}`);
         const newUserHistoryRef = push(userHistoryRef);
         await set(newUserHistoryRef, {
           id: newUserHistoryRef.key,
