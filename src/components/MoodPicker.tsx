@@ -68,7 +68,7 @@ export default function MoodPicker({ onClose, onMovieSelected }: MoodPickerProps
 
       // For short films
       if (mood.maxRuntime) {
-        params.with_runtime = { max: mood.maxRuntime };
+        params['with_runtime.lte'] = mood.maxRuntime;
       }
 
       const response = await tmdbApi.discoverMovies(params);
