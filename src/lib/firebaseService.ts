@@ -6,6 +6,10 @@ import { Movie } from './types';
 // Use local storage if Firebase is not configured
 const useLocalStorage = !isFirebaseConfigured;
 
+console.log('🔥 Firebase configured:', isFirebaseConfigured);
+console.log('🔥 Database object:', database);
+console.log('🔥 Using localStorage:', useLocalStorage);
+
 if (useLocalStorage) {
   console.log('🔧 Using local storage mode - set up Firebase for real-time sync across devices');
 }
@@ -39,16 +43,20 @@ export interface SessionHistory {
 
 // Create a new room
 export const createRoom = async (roomCode: string, user: RoomUser) => {
+  console.log('🎬 createRoom called:', { roomCode, userId: user.id, useLocalStorage });
+  
   if (useLocalStorage) {
     return localStorageService.createRoom(roomCode, user);
   }
   
-  const roomRef = ref(database, `rooms/${roomCode}`);
-  await set(roomRef, {
-    code: roomCode,
-    createdAt: Date.now(),
-    users: {
-      [user.id]: user,
+  try {
+    const roomRef = ref(database, `rooms/${roomCode}`);
+    console.log('🎬 Room ref created:', roomRef);
+    await set(roomRef, {
+      code: roomCode,
+      createdAt: Date.now(),
+      users: {
+        [user.id]: user,
     },
     isSpinning: false,
     selectedWinner: null,
