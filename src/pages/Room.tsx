@@ -293,53 +293,134 @@ export default function RoomPage() {
     );
   }
 
+  // Get vote breakdown by user for a movie
+  const getVoteBreakdown = (movieId: number) => {
+    return users.map(u => ({
+      name: u.name,
+      color: u.color,
+      vote: u.votes?.[movieId.toString()] || 0
+    })).filter(v => v.vote !== 0);
+  };
+
   return (
-    <main className="min-h-screen">
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
-        <div className="absolute top-1/2 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '1.5s' }}></div>
+    <main className="min-h-screen overflow-hidden">
+      {/* CHAOS BACKGROUND */}
+      <div className="fixed inset-0 pointer-events-none">
+        {/* Animated blobs */}
+        <div className="absolute top-10 left-10 w-[500px] h-[500px] bg-red-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+        <div className="absolute top-40 right-20 w-[400px] h-[400px] bg-yellow-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-20 left-1/4 w-[450px] h-[450px] bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-40 right-1/3 w-[350px] h-[350px] bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '1.5s' }}></div>
+
+        {/* Floating popcorn emojis */}
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-4xl select-none"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.random() > 0.5 ? 15 : -15, 0],
+              rotate: [0, Math.random() > 0.5 ? 20 : -20, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: "easeInOut"
+            }}
+          >
+            {['🍿', '🎬', '🎥', '🎞️', '⭐', '🌟', '✨', '🔥'][i % 8]}
+          </motion.div>
+        ))}
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-black mb-2 text-white drop-shadow-lg">🍿 POPCORN PANIC!</h1>
-            <div className="flex items-center gap-2">
-              <span className="text-white font-bold">Room:</span>
-              <code className="font-mono font-black text-yellow-200 text-xl bg-black/30 px-3 py-1 rounded-lg">{roomCode}</code>
-              <button
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-6">
+        {/* EPIC HEADER */}
+        <motion.div
+          className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4"
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+        >
+          <div className="text-center sm:text-left">
+            <motion.h1
+              className="text-4xl sm:text-5xl font-black text-white drop-shadow-2xl flex items-center gap-3 justify-center sm:justify-start"
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <motion.span
+                animate={{ rotate: [-10, 10, -10] }}
+                transition={{ duration: 0.5, repeat: Infinity }}
+              >
+                🍿
+              </motion.span>
+              POPCORN PANIC!
+              <motion.span
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+              >
+                🔥
+              </motion.span>
+            </motion.h1>
+            <div className="flex items-center gap-2 mt-2 justify-center sm:justify-start">
+              <span className="text-white/80 font-bold text-sm">ROOM CODE:</span>
+              <motion.code
+                className="font-mono font-black text-yellow-300 text-2xl bg-black/40 px-4 py-1 rounded-xl border-2 border-yellow-400/50"
+                whileHover={{ scale: 1.05 }}
+              >
+                {roomCode}
+              </motion.code>
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={handleCopyCode}
-                className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors border-2 border-white/30"
+                className="p-2 bg-yellow-400 hover:bg-yellow-300 rounded-lg transition-colors"
               >
                 {copied ? (
-                  <Check className="w-5 h-5 text-green-300" />
+                  <Check className="w-5 h-5 text-black" />
                 ) : (
-                  <Copy className="w-5 h-5 text-white" />
+                  <Copy className="w-5 h-5 text-black" />
                 )}
-              </button>
+              </motion.button>
+              {copied && (
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-green-400 font-bold text-sm"
+                >
+                  Copied!
+                </motion.span>
+              )}
             </div>
           </div>
 
           <div className="flex gap-2">
             <SoundToggle />
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setShowHistory(!showHistory)}
-              className="flex items-center gap-2 glass-dark hover:bg-white/10 px-4 py-2 rounded-xl transition-colors"
+              className="flex items-center gap-2 bg-purple-500/30 hover:bg-purple-500/50 border-2 border-purple-400/50 px-4 py-2 rounded-xl transition-colors font-bold"
             >
               <HistoryIcon className="w-4 h-4" />
               <span className="hidden sm:inline">History</span>
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handleLeaveRoom}
-              className="flex items-center gap-2 glass-dark hover:bg-white/10 px-4 py-2 rounded-xl transition-colors"
+              className="flex items-center gap-2 bg-red-500/30 hover:bg-red-500/50 border-2 border-red-400/50 px-4 py-2 rounded-xl transition-colors font-bold"
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Leave</span>
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Winner Modal */}
         <AnimatePresence>
@@ -484,23 +565,39 @@ export default function RoomPage() {
             )}
 
             {currentUser && (currentUser.selectedMovies?.length || 0) >= 2 && (
-              <button
+              <motion.button
                 onClick={handleToggleReady}
-                className={`w-full py-4 rounded-xl font-semibold transition-all ${
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`w-full py-4 rounded-xl font-black text-lg transition-all border-2 ${
                   currentUser.isReady
-                    ? 'bg-green-500 hover:bg-green-600'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                    ? 'bg-green-500 hover:bg-green-600 border-green-300'
+                    : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 border-yellow-300 animate-pulse'
                 }`}
               >
                 {currentUser.isReady ? (
                   <span className="flex items-center justify-center gap-2">
-                    <Check className="w-5 h-5" />
-                    Ready to Spin
+                    <Check className="w-6 h-6" />
+                    READY TO SPIN! 🎉
                   </span>
                 ) : (
-                  "I'm Ready!"
+                  <span className="flex items-center justify-center gap-2">
+                    <motion.span
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.5, repeat: Infinity }}
+                    >
+                      👆
+                    </motion.span>
+                    LOCK IT IN!
+                    <motion.span
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.5, repeat: Infinity, delay: 0.25 }}
+                    >
+                      🔥
+                    </motion.span>
+                  </span>
                 )}
-              </button>
+              </motion.button>
             )}
           </div>
 
@@ -519,30 +616,69 @@ export default function RoomPage() {
                   </button>
                 )}
 
-                {/* Voting Grid */}
+                {/* Voting Grid - ENHANCED */}
                 {showVoting && !roomData?.isSpinning && !showWinner && (
-                  <div className="glass-dark rounded-2xl p-6">
-                    <h3 className="text-xl font-bold mb-4">Vote on Movies</h3>
-                    <p className="text-gray-400 text-sm mb-6">
-                      Upvote movies you want to watch, downvote ones you don't
-                    </p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-purple-900/50 to-pink-900/50 backdrop-blur-md rounded-3xl p-6 border-2 border-purple-400/30"
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <motion.div
+                        animate={{ rotate: [0, 10, -10, 0] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="text-3xl"
+                      >
+                        🗳️
+                      </motion.div>
+                      <div>
+                        <h3 className="text-2xl font-black">VOTE TIME!</h3>
+                        <p className="text-purple-300 text-sm font-medium">
+                          Everyone can see the votes in real-time!
+                        </p>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {allMovies.map((movie) => {
                         const { total, userVote } = getMovieVotes(movie.id);
                         const isOwnMovie = currentUser?.selectedMovies?.some(m => m.id === movie.id);
+                        const voteBreakdown = getVoteBreakdown(movie.id);
                         return (
-                          <VotingMovieCard
-                            key={movie.id}
-                            movie={movie}
-                            userVote={userVote}
-                            totalVotes={total}
-                            onVote={handleVote}
-                            isOwnMovie={isOwnMovie}
-                          />
+                          <div key={movie.id} className="space-y-2">
+                            <VotingMovieCard
+                              movie={movie}
+                              userVote={userVote}
+                              totalVotes={total}
+                              onVote={handleVote}
+                              isOwnMovie={isOwnMovie}
+                            />
+                            {/* Show who voted */}
+                            {voteBreakdown.length > 0 && (
+                              <div className="flex flex-wrap gap-1 justify-center">
+                                {voteBreakdown.map((v, i) => (
+                                  <motion.div
+                                    key={i}
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className={`text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-1 ${
+                                      v.vote > 0 ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'
+                                    }`}
+                                  >
+                                    <span
+                                      className="w-2 h-2 rounded-full"
+                                      style={{ backgroundColor: v.color }}
+                                    />
+                                    {v.name.slice(0, 6)}
+                                    {v.vote > 0 ? '👍' : '👎'}
+                                  </motion.div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         );
                       })}
                     </div>
-                  </div>
+                  </motion.div>
                 )}
 
                 {/* Roulette */}
@@ -553,13 +689,42 @@ export default function RoomPage() {
                 />
 
                 {!roomData?.isSpinning && !showWinner && (
-                  <button
+                  <motion.button
                     onClick={handleSpin}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105"
+                    className="w-full relative overflow-hidden bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 py-6 rounded-2xl font-black text-2xl flex items-center justify-center gap-3 shadow-2xl border-4 border-white/30"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    animate={{
+                      boxShadow: [
+                        '0 0 20px rgba(255,0,100,0.5)',
+                        '0 0 40px rgba(255,200,0,0.5)',
+                        '0 0 20px rgba(255,0,100,0.5)',
+                      ]
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <Play className="w-6 h-6" />
-                    Spin the Wheel!
-                  </button>
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                      className="text-3xl"
+                    >
+                      🎰
+                    </motion.span>
+                    <span className="drop-shadow-lg">SPIN THE WHEEL!</span>
+                    <motion.span
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 0.5, repeat: Infinity }}
+                      className="text-3xl"
+                    >
+                      🎲
+                    </motion.span>
+                    {/* Shimmer effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                    />
+                  </motion.button>
                 )}
               </div>
             ) : currentUser && !currentUser.isReady ? (
@@ -586,19 +751,54 @@ export default function RoomPage() {
                 />
               </div>
             ) : (
-              <div className="glass-dark rounded-2xl p-12 text-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                  className="w-16 h-16 mx-auto mb-4"
-                >
-                  <div className="w-full h-full border-4 border-purple-500 border-t-transparent rounded-full" />
-                </motion.div>
-                <h3 className="text-xl font-semibold mb-2">Waiting for others...</h3>
-                <p className="text-gray-400">
-                  Everyone needs to be ready before we can spin
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-gradient-to-br from-purple-900/50 to-blue-900/50 backdrop-blur-md rounded-3xl p-12 text-center border-2 border-purple-400/30"
+              >
+                <div className="flex justify-center gap-4 mb-6">
+                  {['🍿', '⏳', '🎬'].map((emoji, i) => (
+                    <motion.span
+                      key={i}
+                      className="text-5xl"
+                      animate={{
+                        y: [0, -20, 0],
+                        rotate: [0, 10, -10, 0]
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        delay: i * 0.2
+                      }}
+                    >
+                      {emoji}
+                    </motion.span>
+                  ))}
+                </div>
+                <h3 className="text-2xl font-black mb-2 text-purple-200">
+                  WAITING FOR THE CREW...
+                </h3>
+                <p className="text-purple-300 font-medium mb-4">
+                  Everyone needs to pick movies and hit ready!
                 </p>
-              </div>
+                <div className="flex justify-center gap-2">
+                  {users.map((u, i) => (
+                    <motion.div
+                      key={u.id}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: i * 0.1 }}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white border-2 ${
+                        u.isReady ? 'border-green-400' : 'border-yellow-400 animate-pulse'
+                      }`}
+                      style={{ backgroundColor: u.color }}
+                      title={`${u.name}: ${u.isReady ? 'Ready!' : 'Picking...'}`}
+                    >
+                      {u.isReady ? '✓' : '...'}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
             )}
           </div>
         </div>
