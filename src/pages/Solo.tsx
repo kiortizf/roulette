@@ -386,16 +386,6 @@ export default function SoloPage() {
                       <span className="hidden sm:inline">Randomize All</span>
                     </button>
                   </div>
-                  // Randomize All: fetch random movies and fill up to 10
-                  const handleRandomizeAll = async () => {
-                    // For demo: just fetch trending movies and pick 10 random unique ones
-                    const trending = await import('@/lib/tmdb').then(m => m.tmdbApi.getTrending('week'));
-                    if (trending && Array.isArray(trending.results)) {
-                      const pool = trending.results.filter((m: Movie) => !selectedMovies.some(sel => sel.id === m.id));
-                      const shuffled = pool.sort(() => 0.5 - Math.random());
-                      setSelectedMovies([...selectedMovies, ...shuffled.slice(0, 10 - selectedMovies.length)]);
-                    }
-                  };
                 </div>
                 <MovieSearch
                   onAddMovie={handleAddMovie}
