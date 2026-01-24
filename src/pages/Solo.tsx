@@ -138,11 +138,12 @@ export default function SoloPage() {
     setShowWinner(false);
   };
 
+  // Only show the wheel after user clicks Spin
+  const [showWheel, setShowWheel] = useState(false);
   const canSpin = selectedMovies.length >= 2;
 
   return (
     <main className="min-h-screen overflow-hidden">
-      {console.log('MovieSearch maxSelections:', 10)}
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-10 left-10 w-[500px] h-[500px] bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
@@ -337,7 +338,7 @@ export default function SoloPage() {
 
           {/* Right Column - Search or Wheel */}
           <div className="lg:col-span-2">
-            {canSpin ? (
+            {showWheel ? (
               <div className="space-y-6">
                 <RouletteWheel
                   movies={selectedMovies}
@@ -345,7 +346,6 @@ export default function SoloPage() {
                   isSpinning={isSpinning}
                   onSpinComplete={handleSpinComplete}
                 />
-
                 {!isSpinning && !showWinner && (
                   <motion.button
                     onClick={handleSpin}
@@ -423,6 +423,44 @@ export default function SoloPage() {
                   selectedMovies={selectedMovies}
                   maxSelections={10}
                 />
+                {/* Show Spin button only if at least 2 movies selected */}
+                {canSpin && (
+                  <motion.button
+                    onClick={() => setShowWheel(true)}
+                    className="w-full mt-6 relative overflow-hidden bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 py-6 rounded-2xl font-black text-2xl flex items-center justify-center gap-3 shadow-2xl border-4 border-white/30"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    animate={{
+                      boxShadow: [
+                        '0 0 20px rgba(139,92,246,0.5)',
+                        '0 0 40px rgba(236,72,153,0.5)',
+                        '0 0 20px rgba(139,92,246,0.5)',
+                      ]
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                      className="text-3xl"
+                    >
+                      🎰
+                    </motion.span>
+                    <span className="drop-shadow-lg">SPIN THE WHEEL!</span>
+                    <motion.span
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 0.5, repeat: Infinity }}
+                      className="text-3xl"
+                    >
+                      🎲
+                    </motion.span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                    />
+                  </motion.button>
+                )}
               </div>
             )}
           </div>
