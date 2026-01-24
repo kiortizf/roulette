@@ -18,8 +18,8 @@ export default function UserList({ users, currentUserId }: UserListProps) {
       <div className="space-y-3">
         {users.map((user, index) => {
           const isCurrentUser = user.id === currentUserId;
-          const hasMovies = user.selectedMovies.length > 0;
-          const movieCount = user.selectedMovies.length;
+          const movieCount = user.selectedMovies?.length || 0;
+          const hasMovies = movieCount > 0;
 
           return (
             <motion.div

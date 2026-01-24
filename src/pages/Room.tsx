@@ -155,23 +155,25 @@ export default function RoomPage() {
 
   const handleAddMovie = async (movie: Movie) => {
     if (!currentUser || !user) return;
-    if (currentUser.selectedMovies.length >= 5) return;
+    const movies = currentUser.selectedMovies || [];
+    if (movies.length >= 5) return;
 
-    await updateUserMovies(roomCode, user.uid, [...currentUser.selectedMovies, movie]);
+    await updateUserMovies(roomCode, user.uid, [...movies, movie]);
   };
 
   const handleRemoveMovie = async (movieId: number) => {
     if (!currentUser || !user) return;
+    const movies = currentUser.selectedMovies || [];
     await updateUserMovies(
       roomCode,
       user.uid,
-      currentUser.selectedMovies.filter(m => m.id !== movieId)
+      movies.filter(m => m.id !== movieId)
     );
   };
 
   const handleToggleReady = async () => {
     if (!currentUser || !user) return;
-    if (currentUser.selectedMovies.length < 2) return;
+    if ((currentUser.selectedMovies?.length || 0) < 2) return;
     await firebaseToggleUserReady(roomCode, user.uid, !currentUser.isReady);
   };
 
@@ -474,14 +476,14 @@ export default function RoomPage() {
             
             {currentUser && (
               <SelectedMovies
-                movies={currentUser.selectedMovies}
+                movies={currentUser.selectedMovies || []}
                 onRemove={handleRemoveMovie}
                 userName={currentUser.name}
                 userColor={currentUser.color}
               />
             )}
 
-            {currentUser && currentUser.selectedMovies.length >= 2 && (
+            {currentUser && (currentUser.selectedMovies?.length || 0) >= 2 && (
               <button
                 onClick={handleToggleReady}
                 className={`w-full py-4 rounded-xl font-semibold transition-all ${
@@ -527,7 +529,7 @@ export default function RoomPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {allMovies.map((movie) => {
                         const { total, userVote } = getMovieVotes(movie.id);
-                        const isOwnMovie = currentUser?.selectedMovies.some(m => m.id === movie.id);
+                        const isOwnMovie = currentUser?.selectedMovies?.some(m => m.id === movie.id);
                         return (
                           <VotingMovieCard
                             key={movie.id}
@@ -579,7 +581,7 @@ export default function RoomPage() {
                 </div>
                 <MovieSearch
                   onAddMovie={handleAddMovie}
-                  selectedMovies={currentUser.selectedMovies}
+                  selectedMovies={currentUser.selectedMovies || []}
                   maxSelections={5}
                 />
               </div>
