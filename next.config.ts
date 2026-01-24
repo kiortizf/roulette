@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       },
     ],
     // Unoptimized images for Cloudflare Pages compatibility
-    unoptimized: process.env.NODE_ENV === 'production',
+    unoptimized: true,
   },
   // Optimize for production
   reactStrictMode: true,

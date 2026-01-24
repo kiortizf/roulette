@@ -7,9 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:build": "next build",
-    "pages:deploy": "npm run build && wrangler pages deploy .next --project-name=movie-roulette",
-    "pages:dev": "wrangler pages dev .next --port 3000"
+    "pages:deploy": "npm run build && wrangler pages deploy out --project-name=movie-roulette --commit-dirty=true"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.17.19",
