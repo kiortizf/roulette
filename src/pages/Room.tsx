@@ -638,7 +638,8 @@ export default function RoomPage() {
                     onClick={async () => {
                       setHasVetoed(true);
                       setShowWinner(false);
-                      // Trigger respin
+                      // Clear winner first, then trigger respin
+                      await setRoomWinner(roomCode, null);
                       await setRoomSpinning(roomCode, true);
                     }}
                     className="w-full flex items-center justify-center gap-2 bg-red-600/80 hover:bg-red-600 py-3 rounded-xl font-bold transition-all border-2 border-red-400/50"

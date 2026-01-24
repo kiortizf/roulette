@@ -132,10 +132,17 @@ class LocalStorageService {
     return Promise.resolve();
   }
 
-  setRoomWinner(roomCode: string, movie: Movie) {
+  setRoomWinner(roomCode: string, movie: Movie | null) {
     const room = this.rooms.get(roomCode);
     if (room) {
-      room.selectedWinner = movie;
+      room.selectedWinner = movie || undefined;
+
+      // If clearing winner, just save and return
+      if (!movie) {
+        this.saveToStorage();
+        this.notifyListeners(roomCode);
+        return Promise.resolve();
+      }
 
       // Calculate total votes for all movies
       const allVotes: { [movieId: string]: number } = {};

@@ -126,10 +126,10 @@ export const setRoomSpinning = async (roomCode: string, isSpinning: boolean) => 
   await set(spinRef, isSpinning);
 };
 
-// Set winner and save to history
+// Set winner and save to history (pass null to clear winner for veto/respin)
 export const setRoomWinner = async (roomCode: string, winner: Movie | null) => {
   if (useLocalStorage) {
-    return localStorageService.setRoomWinner(roomCode, winner!);
+    return localStorageService.setRoomWinner(roomCode, winner);
   }
 
   const winnerRef = ref(database, `rooms/${roomCode}/selectedWinner`);
