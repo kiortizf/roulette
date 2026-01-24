@@ -50,7 +50,7 @@ export default function SelectedMovies({
           <span className={`text-sm font-medium ${
             isValid ? 'text-green-400' : 'text-yellow-400'
           }`}>
-            {movies.length}/{minSelections}-{maxSelections}
+            {movies.length}/{maxSelections}
           </span>
         </div>
       </div>
