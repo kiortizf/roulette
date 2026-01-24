@@ -57,13 +57,16 @@ export const createRoom = async (roomCode: string, user: RoomUser) => {
       createdAt: Date.now(),
       users: {
         [user.id]: user,
-    },
-    isSpinning: false,
-    selectedWinner: null,
-    history: [],
-  });
-};
-
+      },
+      isSpinning: false,
+      selectedWinner: null,
+      history: [],
+    });
+  } catch (error) {
+    console.error('Error creating room:', error);
+    throw error;
+  }
+}
 // Join existing room
 export const joinRoom = async (roomCode: string, user: RoomUser) => {
   if (useLocalStorage) {
