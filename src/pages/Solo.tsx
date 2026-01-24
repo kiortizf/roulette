@@ -119,6 +119,7 @@ export default function SoloPage() {
 
   return (
     <main className="min-h-screen overflow-hidden">
+      {console.log('MovieSearch maxSelections:', 10)}
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-10 left-10 w-[500px] h-[500px] bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
