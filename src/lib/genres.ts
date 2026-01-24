@@ -39,4 +39,8 @@ export const QUICK_FILTERS = [
   { id: 18, name: 'Drama', emoji: '🎭' },
   { id: 14, name: 'Fantasy', emoji: '🧚' },
   { id: 53, name: 'Thriller', emoji: '🔪' },
+  { id: 9648, name: 'Mystery', emoji: '🕵️' },
+  { id: 99, name: 'Documentary', emoji: '🎬' },
+  { id: 10751, name: 'Family', emoji: '👨‍👩‍👧‍👦' },
+  { id: 36, name: 'History', emoji: '🏛️' },
 ] as const;

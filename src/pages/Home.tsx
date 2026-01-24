@@ -1,4 +1,24 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+// Onboarding modal component
+function OnboardingModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full relative">
+        <button onClick={onClose} className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl">×</button>
+        <h2 className="text-2xl font-bold mb-4 text-purple-600 flex items-center gap-2"><Sparkles className="w-6 h-6" /> How Popcorn Panic Works</h2>
+        <ul className="list-disc pl-6 space-y-2 text-gray-700">
+          <li>Create or join a room to spin the movie wheel with friends, or try Solo mode for yourself.</li>
+          <li>Add 2-10 movies (search, filter, or randomize) to build your wheel.</li>
+          <li>Spin the wheel and let fate decide what to watch!</li>
+          <li>Share your result or invite others with a link.</li>
+        </ul>
+        <div className="mt-6 text-center">
+          <button onClick={onClose} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-full font-semibold shadow hover:from-purple-600 hover:to-pink-600 transition-all">Got it!</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 import { useNavigate } from 'react-router-dom';
 import { Film, Users, Sparkles, Popcorn, Zap, PartyPopper, User } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -9,6 +29,17 @@ import PopcornRain from '@/components/PopcornRain';
 import ClickExplosion from '@/components/ClickExplosion';
 
 export default function Home() {
+    // Show onboarding modal on first visit
+    const [showOnboarding, setShowOnboarding] = useState(false);
+    useEffect(() => {
+      if (typeof window !== 'undefined' && !localStorage.getItem('popcorn-panic-onboarded')) {
+        setShowOnboarding(true);
+      }
+    }, []);
+    const handleCloseOnboarding = () => {
+      setShowOnboarding(false);
+      localStorage.setItem('popcorn-panic-onboarded', '1');
+    };
   const navigate = useNavigate();
   const [joinCode, setJoinCode] = useState('');
   const theme = useMemo(() => getCurrentTheme(), []);
@@ -39,6 +70,7 @@ export default function Home() {
   };
 
   return (
+      {showOnboarding && <OnboardingModal onClose={handleCloseOnboarding} />}
     <main className="min-h-screen relative overflow-hidden">
       {/* Falling Popcorn Rain */}
       <PopcornRain />

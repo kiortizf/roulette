@@ -223,13 +223,22 @@ export default function SoloPage() {
                     onClick={() => {
                       const year = new Date(winner.release_date).getFullYear();
                       const text = `🎬 Tonight I'm watching: ${winner.title} (${year}) ⭐ ${winner.vote_average.toFixed(1)}\n\nPicked with Popcorn Panic! 🍿`;
-                      navigator.clipboard.writeText(text);
-                      setCopiedResult(true);
-                      setTimeout(() => setCopiedResult(false), 2000);
+                      if (navigator.share) {
+                        navigator.share({
+                          title: `Tonight's Movie: ${winner.title}`,
+                          text,
+                          url: window.location.href
+                        });
+                      } else {
+                        navigator.clipboard.writeText(text);
+                        setCopiedResult(true);
+                        setTimeout(() => setCopiedResult(false), 2000);
+                      }
                     }}
                     className="flex items-center justify-center gap-2 glass hover:bg-white/10 px-4 py-3 rounded-xl font-semibold transition-colors"
                   >
                     {copiedResult ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
+                    <span className="hidden sm:inline">Share</span>
                   </button>
                   <button
                     onClick={() => setSelectedMovieDetails(winner)}
@@ -349,8 +358,8 @@ export default function SoloPage() {
               <div className="glass-dark rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-2xl font-bold">Pick Your Movies</h2>
-                    <p className="text-gray-400 mt-1">
+                    <h2 className="text-2xl font-bold text-white">Pick Your Movies</h2>
+                    <p className="text-white mt-1">
                       Add 2-10 movies to spin
                     </p>
                   </div>
@@ -369,7 +378,24 @@ export default function SoloPage() {
                       <Play className="w-4 h-4" />
                       <span className="hidden sm:inline">Filters</span>
                     </button>
+                    <button
+                      onClick={handleRandomizeAll}
+                      className="flex items-center gap-2 bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 px-4 py-2 rounded-xl font-semibold transition-all text-sm"
+                    >
+                      <span className="text-lg">🎲</span>
+                      <span className="hidden sm:inline">Randomize All</span>
+                    </button>
                   </div>
+                  // Randomize All: fetch random movies and fill up to 10
+                  const handleRandomizeAll = async () => {
+                    // For demo: just fetch trending movies and pick 10 random unique ones
+                    const trending = await import('@/lib/tmdb').then(m => m.tmdbApi.getTrending('week'));
+                    if (trending && Array.isArray(trending.results)) {
+                      const pool = trending.results.filter((m: Movie) => !selectedMovies.some(sel => sel.id === m.id));
+                      const shuffled = pool.sort(() => 0.5 - Math.random());
+                      setSelectedMovies([...selectedMovies, ...shuffled.slice(0, 10 - selectedMovies.length)]);
+                    }
+                  };
                 </div>
                 <MovieSearch
                   onAddMovie={handleAddMovie}

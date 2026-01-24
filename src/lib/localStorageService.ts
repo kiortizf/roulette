@@ -1,3 +1,34 @@
+// Persistent user settings keys
+const USER_SETTINGS_KEY = 'movie-roulette-user-settings';
+
+export interface UserSettings {
+  lastUsedGenres?: number[];
+  darkMode?: boolean;
+}
+
+function getUserSettings(): UserSettings {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(USER_SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function setUserSettings(settings: UserSettings) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(USER_SETTINGS_KEY, JSON.stringify(settings));
+}
+
+export const userSettingsService = {
+  get: getUserSettings,
+  set: setUserSettings,
+  update: (partial: UserSettings) => {
+    const current = getUserSettings();
+    setUserSettings({ ...current, ...partial });
+  },
+};
 import { Movie, RoomStats } from './types';
 
 // Local storage fallback when Firebase is not configured
