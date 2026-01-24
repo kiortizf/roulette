@@ -41,8 +41,34 @@ export default function MoodPicker({ onClose, onMovieSelected }: MoodPickerProps
         params['vote_average.lte'] = mood.maxRating;
       }
 
-      // Ensure we get movies with enough votes
-      params['vote_count.gte'] = 100;
+      // For underrated gems - limit vote count
+      if (mood.maxVoteCount) {
+        params['vote_count.lte'] = mood.maxVoteCount;
+        params['vote_count.gte'] = 50; // Still need some votes
+      } else {
+        // Ensure we get movies with enough votes
+        params['vote_count.gte'] = 100;
+      }
+
+      // For foreign films
+      if (mood.language === 'foreign') {
+        params.without_original_language = 'en';
+      } else if (mood.language) {
+        params.with_original_language = mood.language;
+      }
+
+      // For classic/older films
+      if (mood.releaseDateBefore) {
+        params['primary_release_date.lte'] = mood.releaseDateBefore;
+      }
+      if (mood.releaseDateAfter) {
+        params['primary_release_date.gte'] = mood.releaseDateAfter;
+      }
+
+      // For short films
+      if (mood.maxRuntime) {
+        params.with_runtime = { max: mood.maxRuntime };
+      }
 
       const response = await tmdbApi.discoverMovies(params);
 

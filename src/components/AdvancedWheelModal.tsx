@@ -1,16 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Calendar, Star, Clock, Film, Shuffle } from 'lucide-react';
+import { X, Sparkles, Calendar, Star, Clock, Film, Shuffle, Globe, Tv, User, Tag } from 'lucide-react';
 import { GENRE_LIST, GenreId } from '@/lib/genres';
-import { tmdbApi, getPosterUrl } from '@/lib/tmdb';
+import { tmdbApi, getPosterUrl, Person, Keyword } from '@/lib/tmdb';
 import { Movie } from '@/lib/types';
 import { haptic } from '@/lib/sounds';
-
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface AdvancedWheelModalProps {
   onClose: () => void;
   onMovieSelected: (movie: Movie) => void;
 }
+
+const LANGUAGES = [
+  { id: 'any', label: 'Any Language', code: undefined, exclude: undefined },
+  { id: 'en', label: 'English Only', code: 'en', exclude: undefined },
+  { id: 'es', label: 'Spanish Only', code: 'es', exclude: undefined },
+  { id: 'foreign', label: 'Foreign (Non-English)', code: undefined, exclude: 'en' },
+];
+
+// TMDB watch provider IDs for US region
+const STREAMING_PROVIDERS = [
+  { id: 0, label: 'Any', providerId: undefined },
+  { id: 8, label: 'Netflix', providerId: '8' },
+  { id: 337, label: 'Disney+', providerId: '337' },
+  { id: 1899, label: 'Max', providerId: '1899' },
+  { id: 9, label: 'Prime Video', providerId: '9' },
+  { id: 15, label: 'Hulu', providerId: '15' },
+  { id: 387, label: 'Peacock', providerId: '387' },
+  { id: 531, label: 'Paramount+', providerId: '531' },
+  { id: 350, label: 'Apple TV+', providerId: '350' },
+];
 
 const DECADES = [
   { label: '2020s', start: '2020-01-01', end: '2029-12-31' },
@@ -42,8 +62,45 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
   const [selectedDecade, setSelectedDecade] = useState('');
   const [selectedRating, setSelectedRating] = useState(RATINGS[0]);
   const [selectedRuntime, setSelectedRuntime] = useState(RUNTIMES[0]);
+  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
+  const [selectedStreaming, setSelectedStreaming] = useState(STREAMING_PROVIDERS[0]);
   const [isSpinning, setIsSpinning] = useState(false);
   const [winner, setWinner] = useState<Movie | null>(null);
+
+  // Person search
+  const [personQuery, setPersonQuery] = useState('');
+  const [personResults, setPersonResults] = useState<Person[]>([]);
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
+  const [personType, setPersonType] = useState<'cast' | 'crew'>('cast');
+  const debouncedPersonQuery = useDebounce(personQuery, 300);
+
+  // Keyword search
+  const [keywordQuery, setKeywordQuery] = useState('');
+  const [keywordResults, setKeywordResults] = useState<Keyword[]>([]);
+  const [selectedKeywords, setSelectedKeywords] = useState<Keyword[]>([]);
+  const debouncedKeywordQuery = useDebounce(keywordQuery, 300);
+
+  // Search for people
+  useEffect(() => {
+    if (debouncedPersonQuery.length >= 2) {
+      tmdbApi.searchPerson(debouncedPersonQuery).then(res => {
+        setPersonResults(res.results.slice(0, 6));
+      });
+    } else {
+      setPersonResults([]);
+    }
+  }, [debouncedPersonQuery]);
+
+  // Search for keywords
+  useEffect(() => {
+    if (debouncedKeywordQuery.length >= 2) {
+      tmdbApi.searchKeyword(debouncedKeywordQuery).then(res => {
+        setKeywordResults(res.results.slice(0, 6));
+      });
+    } else {
+      setKeywordResults([]);
+    }
+  }, [debouncedKeywordQuery]);
 
   const handleSpin = async () => {
     setIsSpinning(true);
@@ -78,6 +135,34 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
           min: selectedRuntime.min,
           max: selectedRuntime.max,
         };
+      }
+
+      // Language filter
+      if (selectedLanguage.code) {
+        params.with_original_language = selectedLanguage.code;
+      }
+      if (selectedLanguage.exclude) {
+        params.without_original_language = selectedLanguage.exclude;
+      }
+
+      // Streaming provider filter
+      if (selectedStreaming.providerId) {
+        params.with_watch_providers = selectedStreaming.providerId;
+        params.watch_region = 'US';
+      }
+
+      // Person filter (actor or director)
+      if (selectedPerson) {
+        if (personType === 'cast') {
+          params.with_cast = selectedPerson.id.toString();
+        } else {
+          params.with_crew = selectedPerson.id.toString();
+        }
+      }
+
+      // Keywords filter
+      if (selectedKeywords.length > 0) {
+        params.with_keywords = selectedKeywords.map(k => k.id).join(',');
       }
 
       // Fetch movies
@@ -125,22 +210,22 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="glass-dark rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="glass-dark rounded-3xl p-4 sm:p-8 max-w-4xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto scrollbar-hide"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
-              <Sparkles className="w-6 h-6" />
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold">Advanced Wheel</h2>
-              <p className="text-gray-400">Let fate decide with smart filters</p>
+              <h2 className="text-xl sm:text-3xl font-bold">Advanced Wheel</h2>
+              <p className="text-gray-400 text-sm sm:text-base hidden sm:block">Let fate decide with smart filters</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors touch-target"
           >
             <X className="w-6 h-6" />
           </button>
@@ -261,7 +346,6 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-
                         setSelectedRuntime(runtime);
                       }}
                       className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
@@ -274,6 +358,213 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
                     </motion.button>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Language Selection */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Globe className="w-5 h-5 text-purple-400" />
+                <h3 className="text-lg font-semibold">Language</h3>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {LANGUAGES.map((lang) => {
+                  const isSelected = selectedLanguage.id === lang.id;
+                  return (
+                    <motion.button
+                      key={lang.id}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedLanguage(lang)}
+                      className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                          : 'bg-white/10 hover:bg-white/20'
+                      }`}
+                    >
+                      {lang.label}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Streaming Provider Selection */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Tv className="w-5 h-5 text-purple-400" />
+                <h3 className="text-lg font-semibold">Streaming On</h3>
+                <span className="text-xs text-gray-400">(US)</span>
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                {STREAMING_PROVIDERS.map((provider) => {
+                  const isSelected = selectedStreaming.id === provider.id;
+                  return (
+                    <motion.button
+                      key={provider.id}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedStreaming(provider)}
+                      className={`px-3 py-3 rounded-xl text-sm font-medium transition-all ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                          : 'bg-white/10 hover:bg-white/20'
+                      }`}
+                    >
+                      {provider.label}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Person Search (Actor/Director) */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <User className="w-5 h-5 text-purple-400" />
+                <h3 className="text-lg font-semibold">Actor or Director</h3>
+              </div>
+
+              {/* Person type toggle */}
+              <div className="flex gap-2 mb-3">
+                <button
+                  onClick={() => setPersonType('cast')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    personType === 'cast'
+                      ? 'bg-purple-500/50 text-white'
+                      : 'bg-white/10 hover:bg-white/20'
+                  }`}
+                >
+                  Actor
+                </button>
+                <button
+                  onClick={() => setPersonType('crew')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    personType === 'crew'
+                      ? 'bg-purple-500/50 text-white'
+                      : 'bg-white/10 hover:bg-white/20'
+                  }`}
+                >
+                  Director
+                </button>
+              </div>
+
+              {/* Selected person chip */}
+              {selectedPerson && (
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                    {selectedPerson.name}
+                    <button
+                      onClick={() => setSelectedPerson(null)}
+                      className="hover:text-red-300"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </span>
+                </div>
+              )}
+
+              {/* Search input */}
+              {!selectedPerson && (
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={personQuery}
+                    onChange={(e) => setPersonQuery(e.target.value)}
+                    placeholder={`Search for ${personType === 'cast' ? 'an actor' : 'a director'}...`}
+                    className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  {personResults.length > 0 && (
+                    <div className="absolute z-10 mt-2 w-full bg-gray-900/95 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden max-h-60 overflow-y-auto">
+                      {personResults.map((person) => (
+                        <button
+                          key={person.id}
+                          onClick={() => {
+                            setSelectedPerson(person);
+                            setPersonQuery('');
+                            setPersonResults([]);
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-white/10 flex items-center gap-3 transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {person.profile_path ? (
+                              <img
+                                src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
+                                alt={person.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <User className="w-5 h-5 text-gray-400" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-medium">{person.name}</div>
+                            <div className="text-xs text-gray-400">{person.known_for_department}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Keyword Search */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Tag className="w-5 h-5 text-purple-400" />
+                <h3 className="text-lg font-semibold">Keywords</h3>
+                <span className="text-sm text-gray-400">(e.g., "time travel", "heist")</span>
+              </div>
+
+              {/* Selected keywords chips */}
+              {selectedKeywords.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {selectedKeywords.map((keyword) => (
+                    <span
+                      key={keyword.id}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2"
+                    >
+                      {keyword.name}
+                      <button
+                        onClick={() => setSelectedKeywords(prev => prev.filter(k => k.id !== keyword.id))}
+                        className="hover:text-red-300"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Search input */}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={keywordQuery}
+                  onChange={(e) => setKeywordQuery(e.target.value)}
+                  placeholder="Search for keywords..."
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                {keywordResults.length > 0 && (
+                  <div className="absolute z-10 mt-2 w-full bg-gray-900/95 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+                    {keywordResults.map((keyword) => (
+                      <button
+                        key={keyword.id}
+                        onClick={() => {
+                          if (!selectedKeywords.find(k => k.id === keyword.id)) {
+                            setSelectedKeywords(prev => [...prev, keyword]);
+                          }
+                          setKeywordQuery('');
+                          setKeywordResults([]);
+                        }}
+                        className="w-full px-4 py-3 text-left hover:bg-white/10 transition-colors"
+                      >
+                        {keyword.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

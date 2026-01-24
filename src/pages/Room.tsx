@@ -13,6 +13,7 @@ import {
   Vote,
   Ban,
   BarChart3,
+  Share2,
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { Movie } from '@/lib/types';
@@ -46,6 +47,9 @@ import SoundToggle from '@/components/SoundToggle';
 import AdvancedWheelModal from '@/components/AdvancedWheelModal';
 import MoodPicker from '@/components/MoodPicker';
 import StatsPanel from '@/components/StatsPanel';
+import FloatingReactions from '@/components/FloatingReactions';
+import ReactionBar from '@/components/ReactionBar';
+import { soundManager, haptic } from '@/lib/sounds';
 
 export default function RoomPage() {
   const params = useParams();
@@ -57,6 +61,7 @@ export default function RoomPage() {
   const [hasJoined, setHasJoined] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [showWinner, setShowWinner] = useState(false);
   const [selectedMovieDetails, setSelectedMovieDetails] = useState<Movie | null>(null);
   const [roomData, setRoomData] = useState<RoomData | null>(null);
@@ -203,11 +208,20 @@ export default function RoomPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCopyInviteLink = () => {
+    const inviteUrl = `${window.location.origin}/room/${roomCode}`;
+    navigator.clipboard.writeText(inviteUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
   const handleAddMovie = async (movie: Movie) => {
     if (!currentUser || !user) return;
     const movies = currentUser.selectedMovies || [];
     if (movies.length >= 5) return;
 
+    soundManager.pop();
+    haptic.light();
     await updateUserMovies(roomCode, user.uid, [...movies, movie]);
   };
 
@@ -224,11 +238,15 @@ export default function RoomPage() {
   const handleToggleReady = async () => {
     if (!currentUser || !user) return;
     if ((currentUser.selectedMovies?.length || 0) < 2) return;
+    soundManager.click();
+    haptic.medium();
     await firebaseToggleUserReady(roomCode, user.uid, !currentUser.isReady);
   };
 
   const handleVote = async (movieId: number, vote: number) => {
     if (!user) return;
+    soundManager.vote(vote > 0);
+    haptic.light();
     await voteOnMovie(roomCode, user.uid, movieId.toString(), vote);
   };
 
@@ -354,6 +372,19 @@ export default function RoomPage() {
 
   return (
     <main className="min-h-screen overflow-hidden">
+      {/* Floating Reactions */}
+      <FloatingReactions roomCode={roomCode} />
+
+      {/* Reaction Bar - show during selection phase */}
+      {currentUser && !roomData?.isSpinning && !showWinner && (
+        <ReactionBar
+          roomCode={roomCode}
+          userId={user?.uid || ''}
+          userName={currentUser.name}
+          userColor={currentUser.color}
+        />
+      )}
+
       {/* CHAOS BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none">
         {/* Animated blobs */}
@@ -363,29 +394,28 @@ export default function RoomPage() {
         <div className="absolute bottom-40 right-1/3 w-[350px] h-[350px] bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: '0.5s' }}></div>
         <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '1.5s' }}></div>
 
-        {/* Floating popcorn emojis */}
-        {[...Array(12)].map((_, i) => (
+        {/* Subtle floating accents - reduced and calmer */}
+        {[
+          { emoji: '🍿', left: '5%', top: '15%' },
+          { emoji: '🎬', left: '90%', top: '25%' },
+          { emoji: '⭐', left: '85%', top: '75%' },
+          { emoji: '🎥', left: '10%', top: '80%' },
+        ].map((item, i) => (
           <motion.div
             key={i}
-            className="absolute text-4xl select-none"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
+            className="absolute text-2xl select-none opacity-40"
+            style={{ left: item.left, top: item.top }}
             animate={{
-              y: [0, -30, 0],
-              x: [0, Math.random() > 0.5 ? 15 : -15, 0],
-              rotate: [0, Math.random() > 0.5 ? 20 : -20, 0],
-              scale: [1, 1.1, 1],
+              y: [0, -10, 0],
+              rotate: [0, 5, -5, 0],
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: 6 + i,
               repeat: Infinity,
-              delay: i * 0.3,
               ease: "easeInOut"
             }}
           >
-            {['🍿', '🎬', '🎥', '🎞️', '⭐', '🌟', '✨', '🔥'][i % 8]}
+            {item.emoji}
           </motion.div>
         ))}
       </div>
@@ -430,6 +460,7 @@ export default function RoomPage() {
                 whileTap={{ scale: 0.9 }}
                 onClick={handleCopyCode}
                 className="p-2 bg-yellow-400 hover:bg-yellow-300 rounded-lg transition-colors"
+                title="Copy room code"
               >
                 {copied ? (
                   <Check className="w-5 h-5 text-black" />
@@ -437,13 +468,26 @@ export default function RoomPage() {
                   <Copy className="w-5 h-5 text-black" />
                 )}
               </motion.button>
-              {copied && (
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleCopyInviteLink}
+                className="p-2 bg-green-400 hover:bg-green-300 rounded-lg transition-colors"
+                title="Copy invite link"
+              >
+                {copiedLink ? (
+                  <Check className="w-5 h-5 text-black" />
+                ) : (
+                  <Share2 className="w-5 h-5 text-black" />
+                )}
+              </motion.button>
+              {(copied || copiedLink) && (
                 <motion.span
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="text-green-400 font-bold text-sm"
                 >
-                  Copied!
+                  {copiedLink ? 'Link copied!' : 'Copied!'}
                 </motion.span>
               )}
             </div>

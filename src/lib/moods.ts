@@ -6,6 +6,11 @@ export interface MoodPreset {
   genres: number[];
   minRating?: number;
   maxRating?: number;
+  maxVoteCount?: number;  // For underrated gems
+  language?: string;      // For foreign films
+  releaseDateBefore?: string;  // For classics/nostalgia
+  releaseDateAfter?: string;
+  maxRuntime?: number;    // For short films
 }
 
 // TMDB Genre IDs
@@ -94,5 +99,57 @@ export const MOOD_PRESETS: MoodPreset[] = [
     description: 'Highly rated gems from the past',
     genres: [], // Any genre
     minRating: 8,
+    releaseDateBefore: '2000-01-01',
+  },
+  {
+    id: 'underrated',
+    label: 'Underrated Gems',
+    emoji: '💎',
+    description: 'Hidden treasures with fewer votes',
+    genres: [],
+    minRating: 7,
+    maxVoteCount: 1000,
+  },
+  {
+    id: 'foreign',
+    label: 'Foreign Flair',
+    emoji: '🌍',
+    description: 'Non-English international cinema',
+    genres: [],
+    minRating: 7,
+    language: 'foreign',
+  },
+  {
+    id: 'cult',
+    label: 'Cult Classics',
+    emoji: '🕹️',
+    description: 'Beloved films with dedicated fanbases',
+    genres: [878, 27, 14], // Sci-Fi, Horror, Fantasy
+    minRating: 6.5,
+    releaseDateBefore: '2005-01-01',
+  },
+  {
+    id: 'comfort',
+    label: 'Comfort Rewatch',
+    emoji: '🧸',
+    description: 'Beloved favorites everyone knows',
+    genres: [],
+    minRating: 7.5,
+  },
+  {
+    id: 'wildcard',
+    label: 'Wild Card',
+    emoji: '🎲',
+    description: 'Completely random - take a chance!',
+    genres: [],
+  },
+  {
+    id: 'short',
+    label: 'Short & Sweet',
+    emoji: '⏱️',
+    description: 'Under 90 minutes - quick watch',
+    genres: [],
+    minRating: 6.5,
+    maxRuntime: 90,
   },
 ];

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Movie } from '@/lib/types';
 import { getPosterUrl } from '@/lib/tmdb';
 import { Sparkles } from 'lucide-react';
-import { haptic } from '@/lib/sounds';
+import { haptic, soundManager } from '@/lib/sounds';
 
 
 interface RouletteWheelProps {
@@ -47,6 +47,7 @@ export default function RouletteWheel({ movies, votes = {}, isSpinning, onSpinCo
 
     // Play spin sound once at the start
     if (!hasPlayedSpinSound.current) {
+      soundManager.whoosh();
       haptic.medium();
       hasPlayedSpinSound.current = true;
     }
@@ -62,8 +63,9 @@ export default function RouletteWheel({ movies, votes = {}, isSpinning, onSpinCo
       setSpinCount(count);
       setCurrentIndex((prev) => (prev + 1) % movies.length);
 
-      // Add light haptic on each movie change during fast spin
+      // Add light haptic and tick sound on each movie change during fast spin
       if (count < totalSpins - 10) {
+        soundManager.tick();
         haptic.light();
       }
 
@@ -76,13 +78,14 @@ export default function RouletteWheel({ movies, votes = {}, isSpinning, onSpinCo
           setSpinCount(count);
           setCurrentIndex((prev) => (prev + 1) % movies.length);
           
-          // Stronger haptic as it slows down
+          // Stronger haptic and tick as it slows down
+          soundManager.tick();
           haptic.medium();
 
           if (count >= totalSpins) {
             clearInterval(intervalRef.current!);
             // Play winner sound and haptic
-
+            soundManager.success();
             haptic.success();
             setTimeout(() => {
               onSpinComplete(movies[winnerIndex]);

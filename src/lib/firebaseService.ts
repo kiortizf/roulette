@@ -353,3 +353,90 @@ export const cleanupInactiveUsers = async (roomCode: string) => {
     });
   }
 };
+
+// Reaction interface
+export interface Reaction {
+  id: string;
+  odUserId: string;
+  userName: string;
+  userColor: string;
+  emoji: string;
+  timestamp: number;
+}
+
+// Send a reaction to the room
+export const sendReaction = async (
+  roomCode: string,
+  odUserId: string,
+  userName: string,
+  userColor: string,
+  emoji: string
+) => {
+  if (useLocalStorage) {
+    // For local storage, just emit a custom event that components can listen to
+    const event = new CustomEvent('room-reaction', {
+      detail: {
+        id: Date.now().toString(),
+        odUserId,
+        userName,
+        userColor,
+        emoji,
+        timestamp: Date.now(),
+      },
+    });
+    window.dispatchEvent(event);
+    return;
+  }
+
+  const reactionsRef = ref(database, `rooms/${roomCode}/reactions`);
+  const newReactionRef = push(reactionsRef);
+  await set(newReactionRef, {
+    id: newReactionRef.key,
+    odUserId,
+    userName,
+    userColor,
+    emoji,
+    timestamp: Date.now(),
+  });
+
+  // Auto-delete reaction after 5 seconds
+  setTimeout(async () => {
+    try {
+      await remove(newReactionRef);
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+  }, 5000);
+};
+
+// Subscribe to reactions
+export const subscribeToReactions = (
+  roomCode: string,
+  callback: (reactions: Reaction[]) => void
+) => {
+  if (useLocalStorage) {
+    // For local storage, listen to custom events
+    const handler = (e: CustomEvent) => {
+      callback([e.detail as Reaction]);
+    };
+    window.addEventListener('room-reaction' as any, handler as EventListener);
+    return () => window.removeEventListener('room-reaction' as any, handler as EventListener);
+  }
+
+  const reactionsRef = ref(database, `rooms/${roomCode}/reactions`);
+  const unsubscribe = onValue(reactionsRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const reactions = Object.values(data) as Reaction[];
+      // Only show reactions from the last 5 seconds
+      const recentReactions = reactions.filter(
+        (r) => Date.now() - r.timestamp < 5000
+      );
+      callback(recentReactions);
+    } else {
+      callback([]);
+    }
+  });
+
+  return unsubscribe;
+};
