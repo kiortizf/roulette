@@ -1087,7 +1087,7 @@ export default function RoomPage() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="text-2xl font-bold">Search & Select Movies</h2>
-                    <p className="text-gray-400 mt-1">
+                    <p className="text-white/60 mt-1">
                       Choose 2-5 movies you'd like to watch
                     </p>
                   </div>

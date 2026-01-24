@@ -56,9 +56,9 @@ export default function SelectedMovies({
       </div>
 
       {movies.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          <p className="text-lg mb-2">No movies selected yet</p>
-          <p className="text-sm">Search and add {minSelections}-{maxSelections} movies to continue</p>
+        <div className="text-center py-12">
+          <p className="text-lg mb-2 text-white/70">No movies selected yet</p>
+          <p className="text-sm text-white/50">Search and add {minSelections}-{maxSelections} movies to continue</p>
         </div>
       ) : (
         <div className="space-y-3">
