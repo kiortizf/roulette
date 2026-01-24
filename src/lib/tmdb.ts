@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL || 'https://api.themoviedb.o
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 if (!API_KEY) {
-  console.warn('TMDB API key is not set. Please add NEXT_PUBLIC_TMDB_API_KEY to your .env.local file');
+  console.warn('TMDB API key is not set. Please add VITE_TMDB_API_KEY to your .env file');
 }
 
 async function fetchTMDB<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
