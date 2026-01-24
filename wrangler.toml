@@ -1,0 +1,20 @@
+name = "movie-roulette"
+compatibility_date = "2024-01-10"
+pages_build_output_dir = ".next"
+
+[build]
+command = "npm run build"
+cwd = "."
+
+[build.environment]
+NODE_VERSION = "20"
+
+# Environment variables (set these in Cloudflare Dashboard)
+# NEXT_PUBLIC_TMDB_API_KEY
+# NEXT_PUBLIC_FIREBASE_API_KEY
+# NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+# NEXT_PUBLIC_FIREBASE_DATABASE_URL
+# NEXT_PUBLIC_FIREBASE_PROJECT_ID
+# NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+# NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+# NEXT_PUBLIC_FIREBASE_APP_ID
