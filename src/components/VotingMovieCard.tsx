@@ -1,11 +1,9 @@
-'use client';
-
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 
 import { Movie } from '@/lib/types';
 import { getPosterUrl } from '@/lib/tmdb';
-import { useState } from 'react';
 
 interface VotingMovieCardProps {
   movie: Movie;
@@ -42,12 +40,10 @@ export default function VotingMovieCard({
     >
       <div className="relative aspect-[2/3] rounded-lg overflow-hidden">
         {movie.poster_path ? (
-          <Image
+          <img
             src={getPosterUrl(movie.poster_path, 'w342')}
             alt={movie.title}
-            fill
-            className="object-cover"
-            sizes="200px"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
           <div className="w-full h-full bg-gray-800 flex items-center justify-center text-4xl">

@@ -1,5 +1,3 @@
-'use client';
-
 import { QUICK_FILTERS, GenreId } from '@/lib/genres';
 import { motion } from 'framer-motion';
 

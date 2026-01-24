@@ -1,5 +1,3 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { X, Play, ExternalLink, Star, Clock, Calendar } from 'lucide-react';
@@ -59,12 +57,10 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
           {/* Header with Backdrop */}
           <div className="relative h-96">
             {movie.backdrop_path ? (
-              <Image
+              <img
                 src={getBackdropUrl(movie.backdrop_path, 'w1280')}
                 alt={movie.title}
-                fill
-                className="object-cover"
-                priority
+                className="absolute inset-0 w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-purple-900 to-pink-900" />
@@ -84,11 +80,10 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                 {/* Poster */}
                 <div className="relative w-48 h-72 flex-shrink-0 rounded-lg overflow-hidden shadow-2xl hidden md:block">
                   {movie.poster_path ? (
-                    <Image
+                    <img
                       src={getPosterUrl(movie.poster_path, 'w500')}
                       alt={movie.title}
-                      fill
-                      className="object-cover"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-800 flex items-center justify-center text-4xl">
@@ -174,11 +169,10 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                             className="relative w-12 h-12 rounded-lg overflow-hidden ring-2 ring-white/20"
                             title={provider.provider_name}
                           >
-                            <Image
+                            <img
                               src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
                               alt={provider.provider_name}
-                              fill
-                              className="object-cover"
+                              className="absolute inset-0 w-full h-full object-cover"
                             />
                           </div>
                         ))}
@@ -196,11 +190,10 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                             className="relative w-12 h-12 rounded-lg overflow-hidden ring-2 ring-white/20"
                             title={provider.provider_name}
                           >
-                            <Image
+                            <img
                               src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
                               alt={provider.provider_name}
-                              fill
-                              className="object-cover"
+                              className="absolute inset-0 w-full h-full object-cover"
                             />
                           </div>
                         ))}
@@ -232,11 +225,10 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                     <div key={person.id} className="text-center">
                       <div className="relative w-full aspect-[2/3] rounded-lg overflow-hidden mb-2 bg-gray-800">
                         {person.profile_path ? (
-                          <Image
+                          <img
                             src={getProfileUrl(person.profile_path, 'w185')}
                             alt={person.name}
-                            fill
-                            className="object-cover"
+                            className="absolute inset-0 w-full h-full object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-4xl">

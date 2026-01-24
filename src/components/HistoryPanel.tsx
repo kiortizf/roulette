@@ -1,5 +1,3 @@
-'use client';
-
 import { motion } from 'framer-motion';
 import { Clock, Users as UsersIcon } from 'lucide-react';
 
@@ -45,12 +43,10 @@ export default function HistoryPanel({ history, onMovieClick }: HistoryPanelProp
               {/* Movie Poster */}
               <div className="relative w-16 h-24 flex-shrink-0 rounded overflow-hidden">
                 {session.winner.poster_path ? (
-                  <Image
+                  <img
                     src={getPosterUrl(session.winner.poster_path, 'w185')}
                     alt={session.winner.title}
-                    fill
-                    className="object-cover"
-                    sizes="64px"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-800 flex items-center justify-center text-xs">

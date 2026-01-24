@@ -1,9 +1,7 @@
-'use client';
-
 import { useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
-
 import { motion } from 'framer-motion';
+import { soundManager } from '@/lib/sounds';
 
 export default function SoundToggle() {
   const [enabled, setEnabled] = useState(true);

@@ -1,5 +1,3 @@
-'use client';
-
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -60,12 +58,10 @@ export default function SelectedMovies({
             >
               <div className="relative w-12 h-16 flex-shrink-0 rounded overflow-hidden">
                 {movie.poster_path ? (
-                  <Image
+                  <img
                     src={getPosterUrl(movie.poster_path, 'w185')}
                     alt={movie.title}
-                    fill
-                    className="object-cover"
-                    sizes="48px"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-800 flex items-center justify-center text-xs">

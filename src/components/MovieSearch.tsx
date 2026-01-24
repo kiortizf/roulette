@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +7,7 @@ import { tmdbApi, getPosterUrl } from '@/lib/tmdb';
 import { Movie } from '@/lib/types';
 import GenreFilter from './GenreFilter';
 import { GenreId } from '@/lib/genres';
+import { haptic } from '@/lib/sounds';
 
 
 interface MovieSearchProps {
@@ -139,12 +138,10 @@ export default function MovieSearch({ onAddMovie, selectedMovies, maxSelections 
                         : 'opacity-50 cursor-not-allowed'
                   } transition-all duration-300`}>
                     {movie.poster_path ? (
-                      <Image
+                      <img
                         src={getPosterUrl(movie.poster_path, 'w342')}
                         alt={movie.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-800 flex items-center justify-center">

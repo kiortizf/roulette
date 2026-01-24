@@ -1,13 +1,10 @@
-'use client';
-
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Calendar, Star, Clock, Film, Shuffle } from 'lucide-react';
 import { GENRE_LIST, GenreId } from '@/lib/genres';
-import { tmdbApi } from '@/lib/tmdb';
+import { tmdbApi, getPosterUrl } from '@/lib/tmdb';
 import { Movie } from '@/lib/types';
-
-import { getPosterUrl } from '@/lib/tmdb';
+import { haptic } from '@/lib/sounds';
 
 
 interface AdvancedWheelModalProps {
@@ -328,12 +325,10 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
 
             <div className="flex flex-col sm:flex-row gap-6 bg-black/30 rounded-2xl p-6 mb-6">
               <div className="relative w-48 h-72 mx-auto sm:mx-0 flex-shrink-0">
-                <Image
+                <img
                   src={getPosterUrl(winner.poster_path, 'w500')}
                   alt={winner.title}
-                  fill
-                  className="object-cover rounded-xl"
-                  sizes="192px"
+                  className="absolute inset-0 w-full h-full object-cover rounded-xl"
                 />
               </div>
               

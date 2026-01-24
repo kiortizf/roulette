@@ -1,11 +1,10 @@
-'use client';
-
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Movie } from '@/lib/types';
 import { getPosterUrl } from '@/lib/tmdb';
 import { Sparkles } from 'lucide-react';
+import { haptic } from '@/lib/sounds';
 
 
 interface RouletteWheelProps {
@@ -125,12 +124,10 @@ export default function RouletteWheel({ movies, isSpinning, onSpinComplete }: Ro
               className="relative w-64 h-96 rounded-2xl overflow-hidden shadow-2xl"
             >
               {movies[currentIndex]?.poster_path ? (
-                <Image
+                <img
                   src={getPosterUrl(movies[currentIndex].poster_path, 'w500')}
                   alt={movies[currentIndex].title}
-                  fill
-                  className="object-cover"
-                  priority
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
@@ -178,11 +175,10 @@ export default function RouletteWheel({ movies, isSpinning, onSpinComplete }: Ro
             className="w-32 h-48 relative rounded-lg overflow-hidden"
           >
             {movies[(currentIndex - 1 + movies.length) % movies.length]?.poster_path && (
-              <Image
+              <img
                 src={getPosterUrl(movies[(currentIndex - 1 + movies.length) % movies.length].poster_path, 'w342')}
                 alt="Previous"
-                fill
-                className="object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
               />
             )}
           </motion.div>
@@ -195,11 +191,10 @@ export default function RouletteWheel({ movies, isSpinning, onSpinComplete }: Ro
             className="w-32 h-48 relative rounded-lg overflow-hidden"
           >
             {movies[(currentIndex + 1) % movies.length]?.poster_path && (
-              <Image
+              <img
                 src={getPosterUrl(movies[(currentIndex + 1) % movies.length].poster_path, 'w342')}
                 alt="Next"
-                fill
-                className="object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
               />
             )}
           </motion.div>
@@ -222,11 +217,10 @@ export default function RouletteWheel({ movies, isSpinning, onSpinComplete }: Ro
               }`}
             >
               {movie.poster_path ? (
-                <Image
+                <img
                   src={getPosterUrl(movie.poster_path, 'w185')}
                   alt={movie.title}
-                  fill
-                  className="object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-800 flex items-center justify-center text-xs">

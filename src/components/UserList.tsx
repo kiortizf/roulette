@@ -1,5 +1,3 @@
-'use client';
-
 import { motion } from 'framer-motion';
 import { Users, Check, Clock } from 'lucide-react';
 import { User } from '@/lib/store';
