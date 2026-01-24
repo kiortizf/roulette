@@ -201,10 +201,10 @@ export default function RoomPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950">
-        <div className="glass-dark rounded-2xl p-8">
-          <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto"></div>
-          <p className="text-center mt-4 text-gray-400">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-600 via-orange-500 to-yellow-400">
+        <div className="bg-white/20 backdrop-blur-md border-2 border-white/30 rounded-2xl p-8">
+          <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full mx-auto"></div>
+          <p className="text-center mt-4 text-white font-bold">Loading the popcorn...</p>
         </div>
       </div>
     );
@@ -212,29 +212,28 @@ export default function RoomPage() {
 
   if (!hasJoined) {
     return (
-      <main className="min-h-screen relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950">
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-float"></div>
-            <div className="absolute bottom-20 right-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{ animationDelay: '2s' }}></div>
-          </div>
+      <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-red-600 via-orange-500 to-yellow-400">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-20 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
         </div>
 
         <div className="relative z-10 flex items-center justify-center min-h-screen px-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-dark rounded-3xl p-8 max-w-md w-full"
+            className="bg-white/20 backdrop-blur-md border-2 border-white/30 rounded-3xl p-8 max-w-md w-full shadow-2xl"
           >
-            <h1 className="text-3xl font-bold text-center mb-2">Join Room</h1>
-            <p className="text-center text-gray-400 mb-6">
-              Room Code: <span className="font-mono font-bold text-purple-400">{roomCode}</span>
+            <h1 className="text-4xl font-black text-center mb-2 text-white drop-shadow-lg">🎬 JOIN THE PARTY!</h1>
+            <p className="text-center text-white font-bold mb-6">
+              Room: <span className="font-mono font-black text-yellow-200 text-xl">{roomCode}</span>
             </p>
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                  Your Name
+                <label htmlFor="name" className="block text-sm font-bold text-white mb-2">
+                  What's your name? ✨
                 </label>
                 <input
                   type="text"
@@ -243,19 +242,21 @@ export default function RoomPage() {
                   onChange={(e) => setUserName(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleJoinRoom()}
                   placeholder="Enter your name"
-                  className="w-full bg-black/30 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full bg-white/30 backdrop-blur-sm border-2 border-white/50 rounded-xl px-4 py-3 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300 font-semibold"
                   maxLength={20}
                   autoFocus
                 />
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleJoinRoom}
                 disabled={!userName.trim()}
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-xl font-semibold transition-all duration-300"
+                className="w-full bg-white text-red-600 hover:bg-yellow-100 disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed py-4 rounded-xl font-black text-xl transition-all duration-300 shadow-lg"
               >
-                Join Room
-              </button>
+                🍿 LET'S GO!
+              </motion.button>
             </div>
           </motion.div>
         </div>
@@ -264,28 +265,29 @@ export default function RoomPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950">
+    <main className="min-h-screen bg-gradient-to-br from-red-600 via-orange-500 to-yellow-400">
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute top-20 left-20 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute top-1/2 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '1.5s' }}></div>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Movie Roulette</h1>
+            <h1 className="text-4xl font-black mb-2 text-white drop-shadow-lg">🍿 POPCORN PANIC!</h1>
             <div className="flex items-center gap-2">
-              <span className="text-gray-400">Room:</span>
-              <code className="font-mono font-bold text-purple-400 text-lg">{roomCode}</code>
+              <span className="text-white font-bold">Room:</span>
+              <code className="font-mono font-black text-yellow-200 text-xl bg-black/30 px-3 py-1 rounded-lg">{roomCode}</code>
               <button
                 onClick={handleCopyCode}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors border-2 border-white/30"
               >
                 {copied ? (
-                  <Check className="w-4 h-4 text-green-400" />
+                  <Check className="w-5 h-5 text-green-300" />
                 ) : (
-                  <Copy className="w-4 h-4 text-gray-400" />
+                  <Copy className="w-5 h-5 text-white" />
                 )}
               </button>
             </div>
