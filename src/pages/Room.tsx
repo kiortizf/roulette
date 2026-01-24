@@ -16,8 +16,8 @@ import {
   Share2,
   Trophy,
 } from 'lucide-react';
-import { useAuth } from '@/lib/AuthContext';
-import { Movie } from '@/lib/types';
+import { useAuth } from '../lib/AuthContext';
+import { Movie } from '../lib/types';
 import { 
   subscribeToRoom, 
   joinRoom, 
@@ -35,25 +35,25 @@ import {
   RoomUser,
   SessionHistory,
   cleanupInactiveUsers,
-} from '@/lib/firebaseService';
-import { getRandomColor, getSavedUsername, saveUsername, generateFunName } from '@/lib/store';
-import MovieSearch from '@/components/MovieSearch';
-import SelectedMovies from '@/components/SelectedMovies';
-import RouletteWheel from '@/components/RouletteWheel';
-import UserList from '@/components/UserList';
-import MovieDetailsModal from '@/components/MovieDetailsModal';
-import VotingMovieCard from '@/components/VotingMovieCard';
-import HistoryPanel from '@/components/HistoryPanel';
-import SoundToggle from '@/components/SoundToggle';
-import AdvancedWheelModal from '@/components/AdvancedWheelModal';
-import MoodPicker from '@/components/MoodPicker';
-import StatsPanel from '@/components/StatsPanel';
-import FloatingReactions from '@/components/FloatingReactions';
-import ReactionBar from '@/components/ReactionBar';
-import { soundManager, haptic } from '@/lib/sounds';
-import { getPosterUrl } from '@/lib/tmdb';
-import { getAchievements, saveAchievements, checkAndUnlockAchievements, Achievement } from '@/lib/achievements';
-import AchievementsPanel, { AchievementUnlockToast } from '@/components/AchievementsPanel';
+} from '../lib/firebaseService';
+import { getRandomColor, getSavedUsername, saveUsername, generateFunName } from '../lib/store';
+import MovieSearch from '../components/MovieSearch';
+import SelectedMovies from '../components/SelectedMovies';
+import RouletteWheel from '../components/RouletteWheel';
+import UserList from '../components/UserList';
+import MovieDetailsModal from '../components/MovieDetailsModal';
+import VotingMovieCard from '../components/VotingMovieCard';
+import HistoryPanel from '../components/HistoryPanel';
+import SoundToggle from '../components/SoundToggle';
+import AdvancedWheelModal from '../components/AdvancedWheelModal';
+import MoodPicker from '../components/MoodPicker';
+import StatsPanel from '../components/StatsPanel';
+import FloatingReactions from '../components/FloatingReactions';
+import ReactionBar from '../components/ReactionBar';
+import { soundManager, haptic } from '../lib/sounds';
+import { getPosterUrl } from '../lib/tmdb';
+import { getAchievements, saveAchievements, checkAndUnlockAchievements, Achievement } from '../lib/achievements';
+import AchievementsPanel, { AchievementUnlockToast } from '../components/AchievementsPanel';
 
 export default function RoomPage() {
   const params = useParams();

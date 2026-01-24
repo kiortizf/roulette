@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ArrowLeft, Info, RotateCcw, Play, Copy, Check } from 'lucide-react';
-import { Movie } from '@/lib/types';
-import MovieSearch from '@/components/MovieSearch';
-import SelectedMovies from '@/components/SelectedMovies';
-import RouletteWheel from '@/components/RouletteWheel';
-import MovieDetailsModal from '@/components/MovieDetailsModal';
-import SoundToggle from '@/components/SoundToggle';
-import AdvancedWheelModal from '@/components/AdvancedWheelModal';
-import MoodPicker from '@/components/MoodPicker';
-import { soundManager, haptic } from '@/lib/sounds';
-import { getPosterUrl } from '@/lib/tmdb';
+import { Movie } from '../lib/types';
+import MovieSearch from '../components/MovieSearch';
+import SelectedMovies from '../components/SelectedMovies';
+import RouletteWheel from '../components/RouletteWheel';
+import MovieDetailsModal from '../components/MovieDetailsModal';
+import SoundToggle from '../components/SoundToggle';
+import AdvancedWheelModal from '../components/AdvancedWheelModal';
+import MoodPicker from '../components/MoodPicker';
+import { soundManager, haptic } from '../lib/sounds';
+import { getPosterUrl } from '../lib/tmdb';
 
 export default function SoloPage() {
   const navigate = useNavigate();

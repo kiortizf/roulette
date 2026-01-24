@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Trophy, Lock } from 'lucide-react';
-import { ACHIEVEMENTS, Achievement, getAchievements } from '@/lib/achievements';
+import { ACHIEVEMENTS, Achievement, getAchievements } from '../lib/achievements';
 
 interface AchievementsPanelProps {
   onClose?: () => void;

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Calendar, Star, Clock, Film, Shuffle, Globe, Tv, User, Tag } from 'lucide-react';
-import { GENRE_LIST, GenreId } from '@/lib/genres';
-import { tmdbApi, getPosterUrl, Person, Keyword } from '@/lib/tmdb';
-import { Movie } from '@/lib/types';
-import { haptic } from '@/lib/sounds';
-import { useDebounce } from '@/hooks/useDebounce';
+import { GENRE_LIST, GenreId } from '../lib/genres';
+import { tmdbApi, getPosterUrl, Person, Keyword } from '../lib/tmdb';
+import { Movie } from '../lib/types';
+import { haptic } from '../lib/sounds';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface AdvancedWheelModalProps {
   onClose: () => void;

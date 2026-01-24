@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Users, Check, Loader2, Popcorn } from 'lucide-react';
-import { RoomUser } from '@/lib/firebaseService';
+import { RoomUser } from '../lib/firebaseService';
 
 interface UserListProps {
   users: RoomUser[];

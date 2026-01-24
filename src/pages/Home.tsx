@@ -22,11 +22,11 @@ function OnboardingModal({ onClose }: { onClose: () => void }) {
 import { useNavigate } from 'react-router-dom';
 import { Film, Users, Sparkles, Popcorn, Zap, PartyPopper, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getCurrentTheme } from '@/lib/themes';
-import { useMousePosition } from '@/hooks/useMousePosition';
-import { soundManager } from '@/lib/sounds';
-import PopcornRain from '@/components/PopcornRain';
-import ClickExplosion from '@/components/ClickExplosion';
+import { getCurrentTheme } from '../lib/themes';
+import { useMousePosition } from '../hooks/useMousePosition';
+import { soundManager } from '../lib/sounds';
+import PopcornRain from '../components/PopcornRain';
+import ClickExplosion from '../components/ClickExplosion';
 
 export default function Home() {
     // Show onboarding modal on first visit

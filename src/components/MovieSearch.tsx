@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Plus, Check } from 'lucide-react';
 
-import { tmdbApi, getPosterUrl } from '@/lib/tmdb';
-import { Movie } from '@/lib/types';
+import { tmdbApi, getPosterUrl } from '../lib/tmdb';
+import { Movie } from '../lib/types';
 import GenreFilter from './GenreFilter';
-import { GenreId } from '@/lib/genres';
-import { haptic } from '@/lib/sounds';
+import { GenreId } from '../lib/genres';
+import { haptic } from '../lib/sounds';
 
 
 interface MovieSearchProps {

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
-
-import { Movie } from '@/lib/types';
-import { getPosterUrl } from '@/lib/tmdb';
+import { Movie } from '../lib/types';
+import { getPosterUrl } from '../lib/tmdb';
+import { getPosterUrl } from '../lib/tmdb';
 
 interface VotingMovieCardProps {
   movie: Movie;

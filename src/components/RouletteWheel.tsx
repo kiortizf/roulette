@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-import { Movie } from '@/lib/types';
-import { getPosterUrl } from '@/lib/tmdb';
+import { Movie } from '../lib/types';
+import { getPosterUrl } from '../lib/tmdb';
 import { Sparkles } from 'lucide-react';
-import { haptic, soundManager } from '@/lib/sounds';
+import { haptic, soundManager } from '../lib/sounds';
 
 
 interface RouletteWheelProps {

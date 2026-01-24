@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { sendReaction } from '@/lib/firebaseService';
-import { soundManager, haptic } from '@/lib/sounds';
+import { sendReaction } from '../lib/firebaseService';
+import { soundManager, haptic } from '../lib/sounds';
 
 interface ReactionBarProps {
   roomCode: string;
