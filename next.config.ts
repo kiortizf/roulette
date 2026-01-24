@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
         pathname: '/t/p/**',
       },
     ],
-    // Unoptimized images for Cloudflare Pages compatibility
+    // Unoptimized images for static export
     unoptimized: true,
   },
   // Optimize for production
