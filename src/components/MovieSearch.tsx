@@ -9,7 +9,7 @@ import { tmdbApi, getPosterUrl } from '@/lib/tmdb';
 import { Movie } from '@/lib/types';
 import GenreFilter from './GenreFilter';
 import { GenreId } from '@/lib/genres';
-import { soundManager, haptic } from '@/lib/sounds';
+
 
 interface MovieSearchProps {
   onAddMovie: (movie: Movie) => void;
@@ -60,7 +60,7 @@ export default function MovieSearch({ onAddMovie, selectedMovies, maxSelections 
       <GenreFilter
         selectedGenres={selectedGenres}
         onToggleGenre={(genreId) => {
-          soundManager.play('click', 0.3);
+
           haptic.light();
           setSelectedGenres(prev =>
             prev.includes(genreId)
@@ -69,7 +69,7 @@ export default function MovieSearch({ onAddMovie, selectedMovies, maxSelections 
           );
         }}
         onClear={() => {
-          soundManager.play('click', 0.3);
+
           setSelectedGenres([]);
         }}
       />

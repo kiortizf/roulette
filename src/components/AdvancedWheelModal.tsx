@@ -8,7 +8,7 @@ import { tmdbApi } from '@/lib/tmdb';
 import { Movie } from '@/lib/types';
 
 import { getPosterUrl } from '@/lib/tmdb';
-import { soundManager, haptic } from '@/lib/sounds';
+
 
 interface AdvancedWheelModalProps {
   onClose: () => void;
@@ -50,7 +50,7 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
 
   const handleSpin = async () => {
     setIsSpinning(true);
-    soundManager.play('spin', 0.7);
+
     haptic.medium();
 
     try {
@@ -99,7 +99,7 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
       setTimeout(() => {
         setWinner(randomMovie);
         setIsSpinning(false);
-        soundManager.play('winner');
+
         haptic.success();
       }, 2000);
     } catch (error) {
@@ -167,7 +167,7 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        soundManager.play('click', 0.3);
+
                         setSelectedGenres(prev =>
                           prev.includes(genre.id)
                             ? prev.filter(id => id !== genre.id)
@@ -202,7 +202,7 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        soundManager.play('click', 0.3);
+
                         setSelectedDecade(isSelected ? '' : decade.label);
                       }}
                       className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
@@ -233,7 +233,7 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        soundManager.play('click', 0.3);
+
                         setSelectedRating(rating);
                       }}
                       className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
@@ -264,7 +264,7 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        soundManager.play('click', 0.3);
+
                         setSelectedRuntime(runtime);
                       }}
                       className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${

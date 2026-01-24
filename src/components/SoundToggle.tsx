@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
-import { soundManager } from '@/lib/sounds';
+
 import { motion } from 'framer-motion';
 
 export default function SoundToggle() {
