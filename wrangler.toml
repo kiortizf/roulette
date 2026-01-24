@@ -1,14 +1,5 @@
 name = "movie-roulette"
 compatibility_date = "2024-01-10"
-pages_build_output_dir = ".next"
-
-[build]
-command = "npm run build"
-cwd = "."
-
-[build.environment]
-NODE_VERSION = "20"
-NEXT_TELEMETRY_DISABLED = "1"
 
 # Environment variables (set these in Cloudflare Dashboard)
 # NEXT_PUBLIC_TMDB_API_KEY

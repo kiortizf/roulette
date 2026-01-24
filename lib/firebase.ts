@@ -81,6 +81,10 @@ export const signInAnonymous = async () => {
 
 // Google sign in for persistent accounts
 export const signInWithGoogle = async () => {
+  if (!isFirebaseConfigured || !auth || !googleProvider) {
+    throw new Error('Firebase is not configured');
+  }
+  
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
