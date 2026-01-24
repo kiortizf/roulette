@@ -1,4 +1,4 @@
-import { ref, set, update, onValue, off, remove, push, get } from 'firebase/database';
+import { ref, set, update, onValue, remove, push, get } from 'firebase/database';
 import { database, isFirebaseConfigured } from './firebase';
 import { localStorageService } from './localStorageService';
 import { Movie } from './types';
@@ -225,7 +225,7 @@ export const subscribeToRoom = (roomCode: string, callback: (data: RoomData | nu
     }
   });
 
-  return () => off(roomRef, 'value', unsubscribe);
+  return unsubscribe;
 };
 
 // Get user's watch history

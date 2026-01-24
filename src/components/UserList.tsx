@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import { Users, Check, Clock } from 'lucide-react';
-import { User } from '@/lib/store';
+import { RoomUser } from '@/lib/firebaseService';
 
 interface UserListProps {
-  users: User[];
+  users: RoomUser[];
   currentUserId: string;
 }
 

@@ -325,11 +325,17 @@ export default function AdvancedWheelModal({ onClose, onMovieSelected }: Advance
 
             <div className="flex flex-col sm:flex-row gap-6 bg-black/30 rounded-2xl p-6 mb-6">
               <div className="relative w-48 h-72 mx-auto sm:mx-0 flex-shrink-0">
-                <img
-                  src={getPosterUrl(winner.poster_path, 'w500')}
-                  alt={winner.title}
-                  className="absolute inset-0 w-full h-full object-cover rounded-xl"
-                />
+                {winner.poster_path ? (
+                  <img
+                    src={getPosterUrl(winner.poster_path, 'w500')}
+                    alt={winner.title}
+                    className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                  />
+                ) : (
+                  <div className="absolute inset-0 w-full h-full bg-gray-800 flex items-center justify-center rounded-xl text-6xl">
+                    🎬
+                  </div>
+                )}
               </div>
               
               <div className="flex-1 text-left">
