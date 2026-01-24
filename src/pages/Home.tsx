@@ -1,6 +1,19 @@
+
 import { useNavigate } from 'react-router-dom';
 import { Film, Users, Sparkles, Popcorn, Zap, PartyPopper } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { isFirebaseConfigured } from '@/lib/firebase';
+
+const firebaseDebug = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  isFirebaseConfigured,
+};
 
 export default function Home() {
   const navigate = useNavigate();
@@ -16,6 +29,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative overflow-hidden">
+      {/* DEBUG BANNER - REMOVE IN PRODUCTION */}
+      <div style={{position:'fixed',top:0,left:0,right:0,zIndex:9999,background:'#222',color:'#fff',padding:'8px',fontSize:'12px',opacity:0.95}}>
+        <strong>DEBUG:</strong> Firebase config: <pre style={{display:'inline',margin:0}}>{JSON.stringify(firebaseDebug, null, 2)}</pre>
+      </div>
       {/* Animated Popcorn Background */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-10 left-10 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
